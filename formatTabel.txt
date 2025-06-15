@@ -1,0 +1,29 @@
+tabel_iuran _warga
+id_iuran
+id_warga
+id_jenis_iuran
+periode bulan
+tgl bayar
+jumlah
+
+
+tabel_jenis_iuran
+id_jenis_iuran
+nama_jenis_iuran
+keterangan
+
+tabel_pengeluaran_kas
+id_pengeluaran
+tanggal
+jumlah
+keterangan
+
+
+Tabel kas secara eksplisit tidak diperlukan
+jika seluruh pemasukan (iuran) dan pengeluaran
+ sudah dicatat di tabel_iuran_warga dan tabel_pengeluaran_kas.
+  Saldo kas dapat dihitung secara dinamis dari total pemasukan dikurangi total pengeluaran. 
+  Namun, jika ingin mencatat saldo kas setiap saat (misal untuk audit atau histori), 
+  bisa dibuat tabel kas_saldo dengan kolom: tanggal, saldo.
+
+  
