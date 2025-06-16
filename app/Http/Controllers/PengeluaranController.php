@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pengeluaran;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class PengeluaranController extends Controller
 {
@@ -12,7 +13,10 @@ class PengeluaranController extends Controller
      */
     public function index()
     {
-        //
+        $pengeluarans = Pengeluaran::orderBy('created_at', 'desc')->get();
+        return Inertia::render('pengeluaran/index', [
+            'pengeluarans' => $pengeluarans,
+        ]);
     }
 
     /**
@@ -28,7 +32,26 @@ class PengeluaranController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        
+        $request->validate([
+            'kategori' => 'required|string|max:255',
+            'nama_pengeluaran' => 'required|string|max:255',
+            'periode_bulan' => 'required|date_format:Y-m',
+            'tgl_bayar' => 'required|date',
+            'jumlah' => 'required|numeric|min:0',
+            'keterangan' => 'nullable|string|max:500',
+        ]);
+        
+
+        Pengeluaran::create([
+            'kategori' => $request->kategori,
+            'nama_pengeluaran' => $request->nama_pengeluaran,
+            'periode_bulan' => $request->periode_bulan,
+            'tgl_bayar' => $request->tgl_bayar,
+            'jumlah' => $request->jumlah,
+            'keterangan' => $request->keterangan,
+        ]);
+        return redirect()->route('pengeluaran.index')->with('success', 'Pengeluaran berhasil ditambahkan.');
     }
 
     /**
@@ -44,7 +67,10 @@ class PengeluaranController extends Controller
      */
     public function edit(Pengeluaran $pengeluaran)
     {
-        //
+        
+        return Inertia::render('pengeluaran/edit', [
+            'pengeluaran' => $pengeluaran,
+        ]);
     }
 
     /**
@@ -52,7 +78,25 @@ class PengeluaranController extends Controller
      */
     public function update(Request $request, Pengeluaran $pengeluaran)
     {
-        //
+        $request->validate([
+            'kategori' => 'required|string|max:255',
+            'nama_pengeluaran' => 'required|string|max:255',
+            'periode_bulan' => 'required|date_format:Y-m',
+            'tgl_bayar' => 'required|date',
+            'jumlah' => 'required|numeric|min:0',
+            'keterangan' => 'nullable|string|max:500',
+        ]);
+
+        $pengeluaran->update([
+            'kategori' => $request->kategori,
+            'nama_pengeluaran' => $request->nama_pengeluaran,
+            'periode_bulan' => $request->periode_bulan,
+            'tgl_bayar' => $request->tgl_bayar,
+            'jumlah' => $request->jumlah,
+            'keterangan' => $request->keterangan,
+        ]);
+
+        return redirect()->route('pengeluaran.index')->with('success', 'Pengeluaran berhasil diperbarui.');
     }
 
     /**

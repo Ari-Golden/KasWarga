@@ -302,7 +302,7 @@ export default function ListIuran({ iurans, wargas, jenisIuran }: ListIuranProps
                             className="w-full rounded border bg-gray-100 p-2"
                         />
                         <input
-                            type="text"
+                            type="month"
                             placeholder="Periode Bulan"
                             value={formData.periode_bulan}
                             onChange={(e) => setFormData({ ...formData, periode_bulan: e.target.value })}
