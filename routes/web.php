@@ -18,6 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('warga/index');
     })->name('profile');
     Route::get('/warga', [WargaController::class, 'index'])->name('warga.index');
+    Route::get('/warga/{warga}', [WargaController::class, 'show'])->name('warga.show');
     Route::post('/warga', [WargaController::class, 'store'])->name('warga.store');
     // Route::put('/warga/{warga}', [WargaController::class, 'update'])->name('warga.update');
     Route::delete('/warga/{warga}', [WargaController::class, 'destroy'])->name('warga.destroy');

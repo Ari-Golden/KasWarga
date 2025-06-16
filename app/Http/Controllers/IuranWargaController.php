@@ -58,7 +58,11 @@ class IuranWargaController extends Controller
      */
     public function show(IuranWarga $iuranWarga)
     {
-        //
+        return Inertia::render('iuran/show', [
+            'iuran' => $iuranWarga->load('warga', 'jenisIuran'),
+            'wargas' => Warga::select('id', 'nama')->get(),
+            'jenisIuran' => JenisIuran::select('id', 'nama_jenis_iuran')->get(),
+        ]);
     }
 
     /**

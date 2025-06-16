@@ -7,6 +7,7 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import ListWargas from "./list_warga"
+import DataWarga from "./data_warga"
 
 interface IndexProps {
   warga: any; // Replace 'any' with the actual type if known, e.g., WargaType[]
@@ -33,7 +34,7 @@ export default function Index({ warga }: IndexProps) {
               
              
               <div className="px-4 lg:px-6">
-               <ListWargas warga={warga} />
+               <DataWarga wargas={warga} />
               </div>
 
               

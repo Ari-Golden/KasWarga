@@ -55,7 +55,7 @@ const data = {
     },
     {
       title: "Pengeluaran",
-      url: "#",
+      url: "/pengeluaran",
       icon: IconFolder,
     },
     {
@@ -115,7 +115,7 @@ const data = {
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "settings",
       icon: IconSettings,
     },
     {

@@ -24,7 +24,8 @@ class JenisIuranController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('jenisiuran/create');
+
     }
 
     /**
@@ -32,7 +33,17 @@ class JenisIuranController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        
+        $request->validate([
+            'nama_jenis_iuran' => 'required|string|max:255',
+            'keterangan' => 'required|string|max:255',
+        ]);
+   
+        
+
+        JenisIuran::create($request->only('nama_jenis_iuran', 'keterangan'));
+
+        return redirect()->route('jenis-iuran.index')->with('success', 'Jenis Iuran created successfully.');
     }
 
     /**
@@ -56,7 +67,14 @@ class JenisIuranController extends Controller
      */
     public function update(Request $request, JenisIuran $jenisIuran)
     {
-        //
+        $request->validate([
+            'nama_jenis_iuran' => 'required|string|max:255',
+            'keterangan' => 'required|string|max:255',
+        ]);
+
+        $jenisIuran->update($request->only('nama_jenis_iuran', 'keterangan'));
+
+        return redirect()->route('jenis-iuran.index')->with('success', 'Jenis Iuran updated successfully.');
     }
 
     /**
@@ -64,6 +82,7 @@ class JenisIuranController extends Controller
      */
     public function destroy(JenisIuran $jenisIuran)
     {
-        //
+        $jenisIuran->delete();
+        return redirect()->route('jenis-iuran.index')->with('success', 'Jenis Iuran deleted successfully.');
     }
 }

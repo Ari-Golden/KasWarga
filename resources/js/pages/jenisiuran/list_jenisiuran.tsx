@@ -1,4 +1,10 @@
-import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog } from '@headlessui/react';
+import { router } from '@inertiajs/react';
+import { ColumnDef, flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
+import { ArrowUpDown } from 'lucide-react';
+import { FormEventHandler, useEffect, useMemo, useState } from 'react';
 
 type JenisIuran = {
     id: number;
@@ -6,76 +12,226 @@ type JenisIuran = {
     keterangan?: string;
 };
 
-type ListJenisIuranProps = {
-    data: JenisIuran[];
-};
+interface ListJenisIuranProps {
+    jenisIuran: JenisIuran[];
+}
 
-const ListJenisIuran: React.FC<ListJenisIuranProps> = ({ data }) => {
-    const [filter, setFilter] = React.useState<string>('');
+export default function ListJenisIuran({ jenisIuran }: ListJenisIuranProps) {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredData, setFilteredData] = useState<JenisIuran[]>(jenisIuran || []);
+    const [formData, setFormData] = useState({
+        nama_jenis_iuran: '',
+        keterangan: '',
+    });
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [currentJenis, setCurrentJenis] = useState<JenisIuran | null>(null);
+
+    useEffect(() => {
+        if (!searchTerm) {
+            setFilteredData(jenisIuran);
+        } else {
+            const lower = searchTerm.toLowerCase();
+            setFilteredData(
+                jenisIuran.filter((i) => i.nama_jenis_iuran.toLowerCase().includes(lower) || (i.keterangan?.toLowerCase().includes(lower) ?? false)),
+            );
+        }
+    }, [searchTerm, jenisIuran]);
+
+    // Fungsi untuk membuka modal tambah/edit data
+    const openModal = (jenis: JenisIuran | null = null) => {
+        setCurrentJenis(jenis);
+        setFormData(
+            jenis
+                ? {
+                      nama_jenis_iuran: jenis.nama_jenis_iuran,
+                      keterangan: jenis.keterangan ?? '',
+                  }
+                : {
+                      nama_jenis_iuran: '',
+                      keterangan: '',
+                  },
+        );
+        setIsModalOpen(true);
+    };
+
+    // Fungsi untuk submit form tambah/edit data
+    const handleSubmit: FormEventHandler = (e) => {
+        e.preventDefault();
+        const payload = {
+            nama_jenis_iuran: formData.nama_jenis_iuran,
+            keterangan: formData.keterangan,
+        };
+        if (currentJenis) {
+            // Edit data
+            router.put(route('jenis-iuran.update', currentJenis.id), payload, {
+                onSuccess: () => setIsModalOpen(false),
+            });
+        } else {
+            // Tambah data
+            router.post(route('jenis-iuran.store'), payload, {
+                onSuccess: () => setIsModalOpen(false),
+            });
+        }
+    };
+
+    const confirmDelete = (jenis: JenisIuran) => {
+        setCurrentJenis(jenis);
+        setIsDeleteConfirmOpen(true);
+    };
+
+    const handleDelete = () => {
+        if (!currentJenis) return;
+        router.delete(route('jenis-iuran.destroy', currentJenis.id), {
+            onSuccess: () => setIsDeleteConfirmOpen(false),
+        });
+    };
+
+    const columns = useMemo<ColumnDef<JenisIuran, any>[]>(
+        () => [
+            {
+                header: 'ID',
+                cell: (info) => info.row.index + 1,
+            },
+            {
+                accessorKey: 'nama_jenis_iuran',
+                header: ({ column }: { column: any }) => (
+                    <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                        Nama Jenis Iuran <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                ),
+            },
+            {
+                accessorKey: 'keterangan',
+                header: 'Keterangan',
+                cell: (info: any) => info.getValue() || '-',
+            },
+            {
+                header: 'Aksi',
+                cell: ({ row }: { row: any }) => (
+                    <div>
+                        <button className="text-blue-500 hover:underline" onClick={() => openModal(row.original)}>
+                            Edit
+                        </button>
+                        <button className="ml-2 text-red-500 hover:underline" onClick={() => confirmDelete(row.original)}>
+                            Hapus
+                        </button>
+                    </div>
+                ),
+            },
+        ],
+        [],
+    );
+
+    const table = useReactTable({
+        data: filteredData,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        state: {},
+    });
 
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-xl font-bold mb-4">Daftar Jenis Iuran</h1>
-            <div className="bg-white shadow rounded-lg overflow-x-auto">
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-2 p-4">
-                    <input
-                        type="text"
-                        placeholder="Cari jenis iuran..."
-                        className="border rounded px-3 py-2 w-full sm:w-64"
-                        value={filter}
-                        onChange={e => setFilter(e.target.value)}
-                    />
-                    <button
-                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm mt-2 sm:mt-0"
-                        onClick={() => alert('Tambah data')}
-                    >
-                        + Tambah Data
-                    </button>
+        <div className="p-4">
+            <div className="mb-4 flex justify-between">
+                <input
+                    type="text"
+                    placeholder="Cari..."
+                    className="rounded border p-2"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <div>
+                    <Button onClick={() => openModal(null)}>+ Tambah Jenis Iuran</Button>
                 </div>
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-100">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Jenis Iuran</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {data.length === 0 ? (
-                            <tr>
-                                <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
-                                    Tidak ada data jenis iuran.
-                                </td>
-                            </tr>
-                        ) : (
-                            data.map((item, idx) => (
-                                <tr key={item.id}>
-                                    <td className="px-6 py-4 whitespace-nowrap">{idx + 1}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">{item.nama_jenis_iuran}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">{item.keterangan || '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap space-x-2">
-                                        <button
-                                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs"
-                                            onClick={() => alert(`Edit ${item.id}`)}
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs"
-                                            onClick={() => alert(`Delete ${item.id}`)}
-                                        >
-                                            Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
             </div>
+            <Table>
+                <TableHeader>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                        <TableRow key={headerGroup.id}>
+                            {headerGroup.headers.map((header) => (
+                                <TableHead key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
+                            ))}
+                        </TableRow>
+                    ))}
+                </TableHeader>
+                <TableBody>
+                    {table.getRowModel().rows.map((row) => (
+                        <TableRow key={row.id}>
+                            {row.getVisibleCells().map((cell) => (
+                                <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                            ))}
+                        </TableRow>
+                    ))}
+                </TableBody>
+                <TableFooter>
+                    <TableRow>
+                        <TableCell colSpan={columns.length} className="text-right font-bold">
+                            Total: {filteredData.length} Jenis Iuran
+                        </TableCell>
+                    </TableRow>
+                </TableFooter>
+            </Table>
+            <div className="mt-4 flex items-center justify-between">
+                <Button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+                    Sebelumnya
+                </Button>
+                <span>
+                    Halaman {table.getState().pagination.pageIndex + 1} dari {table.getPageCount()}
+                </span>
+                <Button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+                    Selanjutnya
+                </Button>
+            </div>
+            <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="fixed inset-0 z-50 flex items-center justify-center">
+                <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+                <div className="z-50 w-full max-w-md rounded bg-white p-6 shadow">
+                    <h2 className="mb-4 text-lg font-bold">{currentJenis ? 'Edit' : 'Tambah'} Jenis Iuran</h2>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <input
+                            type="text"
+                            placeholder="Nama Jenis Iuran"
+                            value={formData.nama_jenis_iuran}
+                            onChange={(e) => setFormData({ ...formData, nama_jenis_iuran: e.target.value })}
+                            className="w-full rounded border p-2"
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="Keterangan"
+                            value={formData.keterangan}
+                            onChange={(e) => setFormData({ ...formData, keterangan: e.target.value })}
+                            className="w-full rounded border p-2"
+                        />
+                        <div className="flex justify-end gap-2">
+                            <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>
+                                Batal
+                            </Button>
+                            <Button type="submit">Simpan</Button>
+                        </div>
+                    </form>
+                </div>
+            </Dialog>
+            <Dialog
+                open={isDeleteConfirmOpen}
+                onClose={() => setIsDeleteConfirmOpen(false)}
+                className="fixed inset-0 z-50 flex items-center justify-center"
+            >
+                <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+                <div className="z-50 w-full max-w-sm rounded bg-white p-6 shadow">
+                    <h2 className="mb-4 text-lg font-bold">Konfirmasi Hapus</h2>
+                    <p>Apakah Anda yakin ingin menghapus data ini?</p>
+                    <div className="mt-4 flex justify-end gap-2">
+                        <Button variant="ghost" onClick={() => setIsDeleteConfirmOpen(false)}>
+                            Batal
+                        </Button>
+                        <Button variant="destructive" onClick={handleDelete}>
+                            Hapus
+                        </Button>
+                    </div>
+                </div>
+            </Dialog>
         </div>
     );
-};
-
-export default ListJenisIuran;
+}

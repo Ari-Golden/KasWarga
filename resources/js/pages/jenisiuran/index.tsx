@@ -5,10 +5,10 @@ import { router, Head, Link } from '@inertiajs/react'
 import { ColumnDef, flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import { ArrowUpDown } from 'lucide-react'
 import { FormEventHandler, useEffect, useMemo, useState } from 'react'
-
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import ListJenisIuran from './list_jenisiuran'
 
 type JenisIuran = {
   id: number
@@ -150,104 +150,8 @@ export default function Index({ jenisIuran = [] }: IndexProps) {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col p-4">
-          <div className="mb-4 flex justify-between">
-            <input
-              type="text"
-              placeholder="Cari..."
-              className="rounded border p-2"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <div>
-              <Button onClick={() => openModal(null)}>+ Tambah Jenis Iuran</Button>
-            </div>
-          </div>
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TableCell colSpan={columns.length} className="text-right font-bold">
-                  Total: {filteredData.length} Jenis Iuran
-                </TableCell>
-              </TableRow>
-            </TableFooter>
-          </Table>
-          <div className="mt-4 flex items-center justify-between">
-            <Button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-              Sebelumnya
-            </Button>
-            <span>
-              Halaman {table.getState().pagination.pageIndex + 1} dari {table.getPageCount()}
-            </span>
-            <Button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-              Selanjutnya
-            </Button>
-          </div>
-          <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="fixed inset-0 z-50 flex items-center justify-center">
-            <Dialog.Panel className="w-full max-w-md rounded bg-white p-6 shadow">
-              <Dialog.Title className="mb-4 text-lg font-bold">{currentJenis ? 'Edit' : 'Tambah'} Jenis Iuran</Dialog.Title>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Nama Jenis Iuran"
-                  value={formData.nama_jenis_iuran}
-                  onChange={(e) => setFormData({ ...formData, nama_jenis_iuran: e.target.value })}
-                  className="w-full rounded border p-2"
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Keterangan"
-                  value={formData.keterangan}
-                  onChange={(e) => setFormData({ ...formData, keterangan: e.target.value })}
-                  className="w-full rounded border p-2"
-                />
-                <div className="flex justify-end gap-2">
-                  <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>
-                    Batal
-                  </Button>
-                  <Button type="submit">Simpan</Button>
-                </div>
-              </form>
-            </Dialog.Panel>
-          </Dialog>
-          <Dialog
-            open={isDeleteConfirmOpen}
-            onClose={() => setIsDeleteConfirmOpen(false)}
-            className="fixed inset-0 z-50 flex items-center justify-center"
-          >
-            <Dialog.Panel className="w-full max-w-sm rounded bg-white p-6 shadow">
-              <Dialog.Title className="mb-4 text-lg font-bold">Konfirmasi Hapus</Dialog.Title>
-              <p>Apakah Anda yakin ingin menghapus data ini?</p>
-              <div className="mt-4 flex justify-end gap-2">
-                <Button variant="ghost" onClick={() => setIsDeleteConfirmOpen(false)}>
-                  Batal
-                </Button>
-                <Button variant="destructive" onClick={handleDelete}>
-                  Hapus
-                </Button>
-              </div>
-            </Dialog.Panel>
-          </Dialog>
-        </div>
+        <ListJenisIuran jenisIuran={jenisIuran}/>
+        
       </SidebarInset>
     </SidebarProvider>
   )

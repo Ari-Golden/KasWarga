@@ -6,7 +6,17 @@ import { router } from '@inertiajs/react';
 import { ColumnDef, flexRender, getCoreRowModel, getPaginationRowModel, SortingState, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 import { FormEventHandler, useEffect, useMemo, useState } from 'react';
 import { ArrowUpDown } from "lucide-react";
-
+import { TableFooter } from '@/components/ui/table';
+import { Link } from '@inertiajs/react';
+import { Label } from '@/components/ui/label';
+function formatDate(dateString: string) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+    });
+}
 type Warga = {
     id: number;
     nama: string;
@@ -16,6 +26,13 @@ type Warga = {
     no_ktp?: string;
     rt_rw?: string;
 };
+/**
+ * Table definition and logic for Warga, similar to ListIuran
+ */
+
+interface ListWargaProps {
+    warga: Warga[];
+}
 
 interface WargaIndexProps {
     warga: Warga[];
@@ -149,8 +166,8 @@ export default function WargaIndex({ warga }: WargaIndexProps) {
         });
 
         return (
-            <div>
-                <Table>
+            <>
+                <Table className="min-w-[600px] md:min-w-0">
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
@@ -167,13 +184,17 @@ export default function WargaIndex({ warga }: WargaIndexProps) {
                             table.getRowModel().rows.map((row) => (
                                 <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                                        <TableCell key={cell.id}>
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </TableCell>
                                     ))}
                                 </TableRow>
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">No results.</TableCell>
+                                <TableCell colSpan={columns.length} className="h-24 text-center">
+                                    No results.
+                                </TableCell>
                             </TableRow>
                         )}
                     </TableBody>
@@ -182,7 +203,8 @@ export default function WargaIndex({ warga }: WargaIndexProps) {
                     <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>Previous</Button>
                     <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>Next</Button>
                 </div>
-            </div>
+            </>
+            
         );
     }
 
@@ -207,35 +229,110 @@ export default function WargaIndex({ warga }: WargaIndexProps) {
             </div>
 
             {/* Modal Tambah/Edit */}
-            <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)}>
-                <div className="fixed inset-0 flex items-center justify-center bg-black/30">
-                    <div className="w-full max-w-md rounded bg-white p-4">
-                        <form onSubmit={handleSubmit}>
-                            <input type="text" placeholder="Nama" className="mb-2 w-full rounded border px-3 py-2" value={formData.nama} onChange={(e) => setFormData({ ...formData, nama: e.target.value })} required />
-                            <input type="text" placeholder="Alamat" className="mb-2 w-full rounded border px-3 py-2" value={formData.alamat} onChange={(e) => setFormData({ ...formData, alamat: e.target.value })} required />
-                            <input type="text" placeholder="No HP" className="mb-2 w-full rounded border px-3 py-2" value={formData.no_hp} onChange={(e) => setFormData({ ...formData, no_hp: e.target.value })} required />
-                            <input type="text" placeholder="No KK" className="mb-2 w-full rounded border px-3 py-2" value={formData.no_kk} onChange={(e) => setFormData({ ...formData, no_kk: e.target.value })} />
-                            <input type="text" placeholder="No KTP" className="mb-2 w-full rounded border px-3 py-2" value={formData.no_ktp} onChange={(e) => setFormData({ ...formData, no_ktp: e.target.value })} />
-                            <input type="text" placeholder="RT/RW" className="mb-2 w-full rounded border px-3 py-2" value={formData.rt_rw} onChange={(e) => setFormData({ ...formData, rt_rw: e.target.value })} />
+            {/* Modal Tambah/Edit */}
+            <Dialog open={isModalOpen} onClose={setIsModalOpen}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+                    <Dialog.Panel className="w-full max-w-md rounded bg-white p-6">
+                        <h2 className="text-lg font-bold mb-2">{currentWarga ? "Edit Warga" : "Tambah Warga"}</h2>
+                        <p className="mb-4 text-gray-600">
+                            {currentWarga ? "Edit data warga di bawah ini." : "Masukkan data warga baru di bawah ini."}
+                        </p>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div>
+                                <Label htmlFor="nama">Nama</Label>
+                                <input
+                                    id="nama"
+                                    type="text"
+                                    className="mt-1 w-full rounded border px-3 py-2"
+                                    value={formData.nama}
+                                    onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="alamat">Alamat</Label>
+                                <input
+                                    id="alamat"
+                                    type="text"
+                                    className="mt-1 w-full rounded border px-3 py-2"
+                                    value={formData.alamat}
+                                    onChange={(e) => setFormData({ ...formData, alamat: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="no_hp">No HP</Label>
+                                <input
+                                    id="no_hp"
+                                    type="text"
+                                    className="mt-1 w-full rounded border px-3 py-2"
+                                    value={formData.no_hp}
+                                    onChange={(e) => setFormData({ ...formData, no_hp: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="no_kk">No KK</Label>
+                                <input
+                                    id="no_kk"
+                                    type="text"
+                                    className="mt-1 w-full rounded border px-3 py-2"
+                                    value={formData.no_kk}
+                                    onChange={(e) => setFormData({ ...formData, no_kk: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="no_ktp">No KTP</Label>
+                                <input
+                                    id="no_ktp"
+                                    type="text"
+                                    className="mt-1 w-full rounded border px-3 py-2"
+                                    value={formData.no_ktp}
+                                    onChange={(e) => setFormData({ ...formData, no_ktp: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="rt_rw">RT/RW</Label>
+                                <input
+                                    id="rt_rw"
+                                    type="text"
+                                    className="mt-1 w-full rounded border px-3 py-2"
+                                    value={formData.rt_rw}
+                                    onChange={(e) => setFormData({ ...formData, rt_rw: e.target.value })}
+                                />
+                            </div>
                             <div className="flex justify-end gap-2">
-                                <button type="button" className="rounded bg-gray-300 px-3 py-2" onClick={() => setIsModalOpen(false)}>Batal</button>
-                                <button type="submit" className="rounded bg-blue-500 px-3 py-2 text-white">Simpan</button>
+                                <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+                                    Batal
+                                </Button>
+                                <Button type="submit">
+                                    Simpan
+                                </Button>
                             </div>
                         </form>
-                    </div>
+                    </Dialog.Panel>
                 </div>
             </Dialog>
 
             {/* Modal Konfirmasi Hapus */}
-            <Dialog open={isDeleteConfirmOpen} onClose={() => setIsDeleteConfirmOpen(false)}>
-                <div className="fixed inset-0 flex items-center justify-center bg-black/30">
-                    <div className="w-full max-w-sm rounded bg-white p-4">
-                        <p>Yakin hapus <strong>{currentWarga?.nama}</strong>?</p>
-                        <div className="mt-4 flex justify-end gap-2">
-                            <button className="rounded bg-gray-300 px-3 py-2" onClick={() => setIsDeleteConfirmOpen(false)}>Batal</button>
-                            <button className="rounded bg-red-500 px-3 py-2 text-white" onClick={handleDelete}>Hapus</button>
+            <Dialog open={isDeleteConfirmOpen} onClose={setIsDeleteConfirmOpen}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+                    <Dialog.Panel className="w-full max-w-md rounded bg-white p-6">
+                        <h2 className="text-lg font-bold mb-2">Konfirmasi Hapus</h2>
+                        <div>
+                            <p>
+                                Yakin hapus <strong>{currentWarga?.nama}</strong>?
+                            </p>
                         </div>
-                    </div>
+                        <div className="flex justify-end gap-2 mt-4">
+                            <Button variant="outline" onClick={() => setIsDeleteConfirmOpen(false)}>
+                                Batal
+                            </Button>
+                            <Button variant="destructive" onClick={handleDelete}>
+                                Hapus
+                            </Button>
+                        </div>
+                    </Dialog.Panel>
                 </div>
             </Dialog>
         </>

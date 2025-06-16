@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\IuranWarga;
 use App\Models\warga;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -32,6 +33,26 @@ class WargaController extends Controller
 
         return redirect()->route('warga.index')->with('success', 'Data warga berhasil ditambahkan.');
     }
+
+    public function edit(Warga $warga)
+    {
+        return Inertia::render('warga/edit', compact('warga'));
+    }
+
+    public function show(Warga $warga)    
+    {
+        // Make sure the foreign key matches your database schema, e.g., 'warga_id' or 'wargaId'
+        // If your foreign key is different, replace 'warga_id' below with the correct column name
+        // Example: IuranWarga::where('warga_id', $warga->id)->get();
+
+        $warga->load('iuranWargas.jenisIuran');
+
+        return Inertia::render('warga/show', [
+            'warga' => $warga,
+            'iuranWargas' => $warga->iuranWargas,
+        ]);
+    }
+
 
     public function update(Request $request, Warga $warga)
     {
