@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\IuranWargaController;
+use App\Http\Controllers\JenisIuranController;
 use App\Http\Controllers\WargaController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -20,6 +22,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route::put('/warga/{warga}', [WargaController::class, 'update'])->name('warga.update');
     Route::delete('/warga/{warga}', [WargaController::class, 'destroy'])->name('warga.destroy');
     Route::match(['put', 'patch'],'/warga/{warga}', [WargaController::class, 'update'])->name('warga.update');
+    Route::resource('iuran-warga', IuranWargaController::class);
+    Route::resource('jenis-iuran', JenisIuranController::class);
 });
 
 require __DIR__.'/settings.php';

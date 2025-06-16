@@ -9,7 +9,7 @@ class IuranWarga extends Model
 {
      use HasFactory;
 
-    protected $table = 'iuran_warga';
+    protected $table = 'iuran_wargas';
 
     protected $fillable = [
         'id_warga',

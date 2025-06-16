@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\JenisIuran;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class JenisIuranController extends Controller
 {
@@ -12,7 +13,10 @@ class JenisIuranController extends Controller
      */
     public function index()
     {
-        //
+        $jenisIuran = JenisIuran::all();
+        return Inertia::render('jenisiuran/index', [
+            'jenisIuran' => $jenisIuran,
+        ]);
     }
 
     /**

@@ -44,13 +44,13 @@ const data = {
       icon: IconDashboard,
     },
     {
-      title: "Iuran Bulanan",
-      url: "#",
+      title: "Jenis Iuran Warga",
+      url: "/jenis-iuran",
       icon: IconListDetails,
     },
     {
       title: "Pembayaran Iuran",
-      url: "#",
+      url: "/iuran-warga",
       icon: IconChartBar,
     },
     {

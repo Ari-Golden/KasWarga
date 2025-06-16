@@ -25,10 +25,10 @@ class Warga extends Model
         'status_aktif' => 'boolean',
     ];
 
-    // Contoh relasi nanti (jika ada tabel kas_warga)
-    public function kas()
-    {
-        // return $this->hasMany(KasWarga::class);
-    }
+
+public function iuranWargas()
+{
+    return $this->hasMany(IuranWarga::class, 'id_warga');
+}
 }
 
