@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\IuranWargaController;
 use App\Http\Controllers\JenisIuranController;
+use App\Http\Controllers\KasController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\WargaController;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('iuran-warga', IuranWargaController::class);
     Route::resource('jenis-iuran', JenisIuranController::class);
     Route::resource('pengeluaran',PengeluaranController::class);
+    Route::resource('kas',KasController::class);
 });
 
 require __DIR__.'/settings.php';

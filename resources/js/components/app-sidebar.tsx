@@ -59,6 +59,11 @@ const data = {
       icon: IconFolder,
     },
     {
+      title: "Kas Warga",
+      url: "/kas",
+      icon: IconDatabase,
+    },
+    {
       title: "Data Warga",
       url: "/warga",
       icon: IconUsers,

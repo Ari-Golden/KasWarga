@@ -134,13 +134,30 @@ export default function ListIuran({ iurans, wargas, jenisIuran }: ListIuranProps
     const columns = useMemo<ColumnDef<Iuran, any>[]>(
         () => [
             {
-                header: 'ID',
+                header: ({ column }) => (
+                    <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                        No <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                ),
+                accessorKey: 'id',
                 cell: (info) => info.row.index + 1,
             },
             {
-                accessorKey: 'nama_warga',
-                header: 'Nama Warga',
-                cell: (info) => info.row.original.warga?.nama ?? '-',
+                accessorFn: (row) => row.warga?.nama ?? '-',
+                id: 'nama_warga',
+                header: ({ column }) => (
+                    <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                        Nama Warga <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                ),
+                cell: (info) => (
+                    <Link
+                        className="text-blue-500 hover:underline"
+                        href={route('warga.show', info.row.original.id_warga)}
+                    >
+                        {info.getValue()}
+                    </Link>
+                ),
             },
             {
                 accessorKey: 'id_jenis_iuran',
