@@ -10,76 +10,33 @@ import * as React from 'react';
 import * as XLSX from 'xlsx';
 
 type LaporanKas = {
-    tanggal: string;
-    uraian: string;
-    pemasukan: number;
-    pengeluaran: number;
+    tanggal_kas: string;
+    uraian_kas: string;
+    periode_bulan: string;
+    uang_masuk: number;
+    uang_keluar: number;
     saldo: number;
+    keterangan: string;
 };
-
-const data: LaporanKas[] = [
-    {
-        tanggal: '31-12-2023',
-        uraian: 'Saldo Bulan Desember 2023',
-        pemasukan: 8517000,
-        pengeluaran: 0,
-        saldo: 8517000,
-    },
-    {
-        tanggal: '16-01-2024',
-        uraian: 'Besuk Bpk Firman',
-        pemasukan: 0,
-        pengeluaran: 300000,
-        saldo: 8217000,
-    },
-    {
-        tanggal: '17-01-2024',
-        uraian: 'Cetak Kartu Kuning',
-        pemasukan: 0,
-        pengeluaran: 540000,
-        saldo: 7677000,
-    },
-    {
-        tanggal: '26-01-2024',
-        uraian: 'Setoran Iuran Bulanan',
-        pemasukan: 4500000,
-        pengeluaran: 0,
-        saldo: 12177000,
-    },
-    {
-        tanggal: '26-01-2024',
-        uraian: 'Dana Taktis',
-        pemasukan: 265000,
-        pengeluaran: 0,
-        saldo: 12442000,
-    },
-    {
-        tanggal: '26-01-2024',
-        uraian: 'Operasional Penarikan Kas',
-        pemasukan: 0,
-        pengeluaran: 350000,
-        saldo: 12092000,
-    },
-];
 
 const columns: ColumnDef<LaporanKas>[] = [
     {
-        accessorKey: 'tanggal',
+        accessorKey: 'tanggal_kas',
         header: 'Tanggal',
     },
     {
-        accessorKey: 'uraian',
+        accessorKey: 'uraian_kas',
         header: 'Uraian Transaksi',
     },
     {
-        accessorKey: 'pemasukan',
+        accessorKey: 'uang_masuk',
         header: 'Pemasukan',
-        cell: ({ row }) => <div className="text-right">{row.original.pemasukan > 0 ? `Rp${row.original.pemasukan.toLocaleString()}` : '-'}</div>,
+        cell: ({ row }) => <div className="text-right">{row.original.uang_masuk > 0 ? `Rp${row.original.uang_masuk.toLocaleString()}` : '-'}</div>,
     },
     {
-        accessorKey: 'pengeluaran',
+        accessorKey: 'uang_keluar',
         header: 'Pengeluaran',
-        cell: ({ row }) => <div className="text-right">{row.original.pengeluaran > 0 ? `Rp${row.original.pengeluaran.toLocaleString()}` : '-'}</div>,
+        cell: ({ row }) => <div className="text-right">{row.original.uang_keluar > 0 ? `Rp${row.original.uang_keluar.toLocaleString()}` : '-'}</div>,
     },
     {
         accessorKey: 'saldo',
@@ -88,8 +45,16 @@ const columns: ColumnDef<LaporanKas>[] = [
     },
 ];
 
-export default function LaporanKasTable() {
+type LaporanKasTableProps = {
+    
+    kasWarga?: any; // Tambahkan prop kasWarga opsional, sesuaikan tipe jika sudah diketahui
+};
+
+export default function LaporanKasTable({ kasWarga }: LaporanKasTableProps) {
     const [globalFilter, setGlobalFilter] = React.useState('');
+
+    // Gunakan kasWarga sebagai data, fallback ke array kosong jika undefined
+    const data: LaporanKas[] = kasWarga ?? [];
 
     const table = useReactTable({
         data,
@@ -106,10 +71,10 @@ export default function LaporanKasTable() {
     const exportExcel = () => {
         const ws = XLSX.utils.json_to_sheet(
             table.getFilteredRowModel().rows.map((r) => ({
-                Tanggal: r.original.tanggal,
-                Uraian: r.original.uraian,
-                Pemasukan: r.original.pemasukan,
-                Pengeluaran: r.original.pengeluaran,
+                Tanggal: r.original.tanggal_kas,
+                Uraian: r.original.uraian_kas,
+                Pemasukan: r.original.uang_masuk,
+                Pengeluaran: r.original.uang_keluar,
                 Saldo: r.original.saldo,
             })),
         );
@@ -125,10 +90,10 @@ export default function LaporanKasTable() {
         autoTable(doc, {
             head: [['Tanggal', 'Uraian', 'Pemasukan', 'Pengeluaran', 'Saldo']],
             body: data.map((row) => [
-                row.tanggal,
-                row.uraian,
-                `Rp${row.pemasukan.toLocaleString()}`,
-                `Rp${row.pengeluaran.toLocaleString()}`,
+                row.tanggal_kas,
+                row.uraian_kas,
+                `Rp${row.uang_masuk.toLocaleString()}`,
+                `Rp${row.uang_keluar.toLocaleString()}`,
                 `Rp${row.saldo.toLocaleString()}`,
             ]),
         });

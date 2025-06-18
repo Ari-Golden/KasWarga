@@ -22,6 +22,13 @@ class IuranWargaController extends Controller
             'wargas' => Warga::select('id', 'nama')->get(),
             'jenisIuran' => JenisIuran::select('id', 'nama_jenis_iuran')->get(),
         ]);
+
+        //terintegrasi dengan tampilan kas index
+        return Inertia::render('kas/index', [
+            'title' => 'Kas',
+            'description' => 'Manage your kas entries here.',
+            'iurans' => $iuran,
+        ]);
     }
 
     /**

@@ -17,6 +17,7 @@ class PengeluaranController extends Controller
         return Inertia::render('pengeluaran/index', [
             'pengeluarans' => $pengeluarans,
         ]);
+        
     }
 
     /**
