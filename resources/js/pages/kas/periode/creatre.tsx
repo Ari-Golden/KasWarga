@@ -31,10 +31,10 @@ const CreatePeriodeForm: React.FC = () => {
                     <Input
                         id="nama-periode"
                         name="nama_periode"
-                        placeholder="MM/YYYY"
+                        placeholder="MM-YYYY"
                         type="text"
-                        pattern="^(0[1-9]|1[0-2])\/\d{4}$"
-                        title="Format: MM/YYYY (contoh: 06/2024)"
+                        pattern="^(0[1-9]|1[0-2])\-\d{4}$"
+                        title="Format: MM-YYYY (contoh: 06-2024)"
                         required
                         value={data.nama_periode}
                         onChange={handleChange}
