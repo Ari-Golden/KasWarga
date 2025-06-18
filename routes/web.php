@@ -30,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('jenis-iuran', JenisIuranController::class);
     Route::resource('pengeluaran',PengeluaranController::class);
     Route::resource('kas',KasController::class);
+    Route::post('/kas/kas-out', [KasController::class, 'storeKasOut'])->name('kas.storeKasOut');
     Route::resource('periode',PeriodeController::class);
 });
 

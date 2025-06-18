@@ -9,6 +9,7 @@ class KasWarga extends Model
     protected $table = 'kas_wargas';
 
     protected $fillable = [
+        'kode',
         'uraian_kas',
         'tanggal_kas',
         'periode_bulan',
@@ -41,4 +42,19 @@ class KasWarga extends Model
         }
         return $query;
     }
+    public static function getKasWithRealtimeSaldo()
+{
+    $kasList = self::orderBy('tanggal_kas')
+        ->orderBy('id')
+        ->get();
+
+    $saldo = 0;
+
+    return $kasList->map(function ($item) use (&$saldo) {
+        $saldo += ($item->uang_masuk ?? 0) - ($item->uang_keluar ?? 0);
+        $item->saldo_realtime = $saldo;
+        return $item;
+    });
+}
+
 }
