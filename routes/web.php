@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Dasboard;
 use App\Http\Controllers\IuranWargaController;
 use App\Http\Controllers\JenisIuranController;
 use App\Http\Controllers\KasController;
@@ -14,9 +15,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', [Dasboard::class, 'index'])->name('dashboard');
     Route::get('data_warga', function () {
         return Inertia::render('warga/index');
     })->name('profile');
@@ -31,8 +30,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('pengeluaran',PengeluaranController::class);
     Route::resource('kas',KasController::class);
     Route::post('/kas/kas-out', [KasController::class, 'storeKasOut'])->name('kas.storeKasOut');
+    Route::post('/kas/income-lain', [KasController::class, 'storeIncomeLain'])->name('kas.storeIncomeLain');
     Route::resource('periode',PeriodeController::class);
 });
-
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

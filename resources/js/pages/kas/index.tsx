@@ -18,12 +18,12 @@ interface IndexProps {
     periodes?: any[]; // opsional
     kasWargas?: any[]; // opsional
     pengeluaranKas?: any[]; // opsional
+    kas?: any[]; // opsional
 }
 
 export default function Index(_: IndexProps) {
     // default array kosong
-    console.log('Data Iuran:', _.iurans || []);
-    console.log('Data Warga:', _.wargas || []);
+   
 
     const [selectedPeriode, setSelectedPeriode] = useState<string | undefined>(undefined);
 
@@ -81,8 +81,7 @@ export default function Index(_: IndexProps) {
                             <Tabs defaultValue="General Kas" className="w-full">
                                 <TabsList>
                                     <TabsTrigger value="General Kas">General Kas</TabsTrigger>
-                                    <TabsTrigger value="Iuran Bulanan">Iuran Bulanan</TabsTrigger>
-                                    <TabsTrigger value="Pemasukan Lain">Pemasukan lain</TabsTrigger>
+                                    <TabsTrigger value="Iuran Bulanan">Iuran Bulanan</TabsTrigger>                                    
                                     <TabsTrigger value="Pengeluaran Kas">Pengeluaran Kas</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="General Kas">
@@ -97,7 +96,7 @@ export default function Index(_: IndexProps) {
                                             </div>
                                         </CardContent>
                                         <CardFooter>
-                                            <Button>Save changes</Button>
+                                            
                                         </CardFooter>
                                     </Card>
                                 </TabsContent>
@@ -251,72 +250,7 @@ export default function Index(_: IndexProps) {
                                         </CardContent>
                                         <CardFooter></CardFooter>
                                     </Card>
-                                </TabsContent>
-                                <TabsContent value="Pemasukan Lain">
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle>Pemasukan Lain</CardTitle>
-                                            <CardDescription>Penarikan Data Pemasukan Lain</CardDescription>
-                                        </CardHeader>
-                                        <CardContent className="grid gap-6">
-                                            Disini akan ditampilkan data pemasukan lain warga
-                                            <div className="flex items-center gap-4 mb-4">
-                                                <Select value={selectedPeriode} onValueChange={setSelectedPeriode}>
-                                                    <SelectTrigger className="w-[200px]">
-                                                        <SelectValue placeholder="Pilih Periode" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value={undefined as any}>All Data</SelectItem>
-                                                        {(Array.isArray(_.periodes) ? _.periodes : []).map((periode: any) => (
-                                                            <SelectItem key={periode.id} value={periode.id?.toString()}>
-                                                                {periode.nama_periode || `Periode ${periode.id}`}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                                <Button
-                                                    onClick={() => {
-                                                        // Kirim data iuran bulanan yang difilter ke kas Controller
-                                                        const filteredIurans = (_.iurans || []).filter((iuran) => {
-                                                            if (!selectedPeriode) return true;
-                                                            const periode = (_.periodes || []).find((p) => p.id?.toString() === selectedPeriode);
-                                                            if (!periode) return false;
-                                                            const tglBayar = iuran.tgl_bayar ? new Date(iuran.tgl_bayar) : null;
-                                                            const tanggalMulai = periode.tanggal_mulai ? new Date(periode.tanggal_mulai) : null;
-                                                            const tanggalAkhir = periode.tanggal_akhir ? new Date(periode.tanggal_akhir) : null;
-                                                            if (!tglBayar || !tanggalMulai || !tanggalAkhir) return false;
-                                                            return tglBayar >= tanggalMulai && tglBayar <= tanggalAkhir;
-                                                        });
-
-                                                        // Kirim ke inertia
-                                                        import('@inertiajs/react').then(({ router }) => {
-                                                            const periode = (_.periodes || []).find((p) => p.id?.toString() === selectedPeriode);
-                                                            router.post('/kas', {
-                                                                iurans: filteredIurans,
-                                                                periode_id: selectedPeriode,
-                                                                nama_periode: periode?.nama_periode || '',
-                                                                uraian_kas: 'Iuran Bulanan',
-                                                                tanggal_kas: new Date().toISOString().split('T')[0],
-                                                                periode_bulan: selectedPeriode,
-                                                                uang_masuk: filteredIurans.reduce((sum, iuran) => sum + (Number(iuran.jumlah) || 0), 0),
-                                                                uang_keluar: 0,
-                                                                saldo: filteredIurans.reduce((sum, iuran) => sum + (Number(iuran.jumlah) || 0), 0),
-                                                                keterangan: '',
-                                                            });
-                                                        });
-                                                    }}
-                                                >
-                                                    Kirim data iuran bulanan Ke Kas
-                                                </Button>
-                                            </div>
-                                            
-                                            
-                                            </CardContent>
-                                        <CardFooter>
-                                            
-                                        </CardFooter>
-                                    </Card>
-                                </TabsContent>
+                                </TabsContent>                                
                                 <TabsContent value="Pengeluaran Kas">
                                     <Card>
                                         <CardHeader>

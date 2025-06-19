@@ -25,7 +25,7 @@ class KasController extends Controller
 
     {
 
-        $kasWargas = KasWarga::getKasWithRealtimeSaldo();
+        $kasWargas = KasWarga::orderBy('id', 'asc')->get();
         $periodes = periode::all();
         $iurans = IuranWarga::all();
         $pengeluaranKas = Pengeluaran::all()->where('kategori', 'Kas');
@@ -57,47 +57,99 @@ class KasController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function storeIncomeLain(Request $request)
     {
 
-       $request->validate([
-        'uraian_kas'     => 'required|string|max:255',
-        'tanggal_kas'    => 'required|date',
-        'nama_periode'   => 'required|exists:periodes,nama_periode', // pastikan tabel periodes ada
-        'periode_bulan'  => 'required|string|max:255',
-        'uang_masuk'     => 'nullable|numeric|min:0',
-        'uang_keluar'    => 'nullable|numeric|min:0',
-        'saldo'          => 'nullable|numeric',
-        'keterangan'     => 'nullable|string|max:255',
-    ]);
+        $request->validate([
+            'uraian_kas'     => 'required|string|max:255',
+            'tanggal_kas'    => 'required|date',
+            'nama_periode'   => 'required|string|max:255', // pastikan tabel periodes ada
+            'periode_bulan'  => 'nullable|string|max:255',
+            'uang_masuk'     => 'nullable|numeric|min:0',
+            'uang_keluar'    => 'nullable|numeric|min:0',
+            'saldo'          => 'nullable|numeric',
+            'keterangan'     => 'nullable|string|max:255',
+        ]);
 
-    // Persiapkan data
-    $bulan = Carbon::parse($request->tanggal_kas)->format('m');
-    $tahun = Carbon::parse($request->tanggal_kas)->format('Y');
-    $kodeKas = 'Kas-IN-' . $bulan . '-' . $tahun;
+        // Persiapkan data
+        $bulan = Carbon::parse($request->tanggal_kas)->format('m');
+        $tahun = Carbon::parse($request->tanggal_kas)->format('Y');
+        $nextId = KasWarga::max('id') + 1;
+        $kodeKas = 'Kas-IN-' . $nextId . '-' . $bulan . '-' . $tahun;
 
-      // ✅ Cek jika kode kas sudah ada → hentikan proses
-    if (KasWarga::where('kode', $kodeKas)->exists()) {
-        return redirect()->back()->withErrors(['kode' => 'Data kas masuk untuk bulan ini sudah tercatat.'])->withInput();
+
+        // ✅ Cek jika kode kas sudah ada → hentikan proses
+        if (KasWarga::where('kode', $kodeKas)->exists()) {
+            return redirect()->back()->withErrors(['kode' => 'Data kas masuk untuk bulan ini sudah tercatat.'])->withInput();
+        }
+
+
+        // Simpan ke database
+        KasWarga::create([
+            'kode'           => $kodeKas,
+            'uraian_kas'     => $request->uraian_kas . ' ' . Carbon::parse($request->nama_periode)->format('m-Y'),
+            'tanggal_kas'    => Carbon::parse($request->tanggal_kas)->format('Y-m-d'),
+            'periode_bulan'  => Carbon::createFromFormat('m-Y', $request->nama_periode)->format('m-Y'),
+            'uang_masuk'     => $request->uang_masuk ?? 0,
+            'uang_keluar'    => $request->uang_keluar ?? 0,
+            'saldo'          => $request->saldo ?? 0,
+            'keterangan'     => $request->keterangan,
+        ]);
+
+        return redirect()->route('kas.index')->with('success', 'Income lain berhasil ditambahkan.');
     }
+    public function store(Request $request)
+    {
+        try {
 
-    $uangMasuk  = $request->uang_masuk ?? 0;
-    $uangKeluar = $request->uang_keluar ?? 0;
-    $saldo      = $uangMasuk - $uangKeluar;
+            $request->validate([
+                'uraian_kas'     => 'required|string|max:255',
+                'tanggal_kas'    => 'required|date',
+                'nama_periode'   => 'date_format:m-Y|exists:periodes,nama_periode', // pastikan tabel periodes ada
+                'periode_bulan'  => 'nullable|string|max:255',
+                'uang_masuk'     => 'nullable|numeric|min:0',
+                'uang_keluar'    => 'nullable|numeric|min:0',
+                'saldo'          => 'nullable|numeric',
+                'keterangan'     => 'nullable|string|max:255',
+            ]);
 
-    // Simpan ke database
-    KasWarga::create([
-        'kode'           => $kodeKas, // ✅ pastikan di model dan migrasi namanya `kode`
-        'uraian_kas'     => $request->uraian_kas . ' ' . $request->nama_periode,
-        'tanggal_kas'    => Carbon::parse($request->tanggal_kas)->format('Y-m-d'),
-        'periode_bulan'  => $request->nama_periode,
-        'uang_masuk'     => $uangMasuk,
-        'uang_keluar'    => $uangKeluar,
-        'saldo'          => $saldo,
-        'keterangan'     => $request->keterangan,
-    ]);
 
-    return redirect()->route('kas.index')->with('success', 'Kas Masuk berhasil ditambahkan.');
+
+            // Persiapkan data
+            $bulan = Carbon::parse($request->tanggal_kas)->format('m');
+            $tahun = Carbon::parse($request->tanggal_kas)->format('Y');
+            // Get the next ID that will be assigned
+            $nextId = KasWarga::max('id') + 1;
+            $kodeKas = 'Kas-IN-' . $nextId . '-' . $bulan . '-' . $tahun;
+
+
+            // ✅ Cek jika kode kas sudah ada → hentikan proses
+            if (KasWarga::where('kode', $kodeKas)->exists()) {
+                return redirect()->back()->withErrors(['kode' => 'Data kas masuk untuk bulan ini sudah tercatat.'])->withInput();
+            }
+
+            $uangMasuk  = $request->uang_masuk ?? 0;
+            $uangKeluar = $request->uang_keluar ?? 0;
+            $saldo      = $uangMasuk - $uangKeluar;
+
+            // Simpan ke database
+            KasWarga::create([
+                'kode'           => $kodeKas, // ✅ pastikan di model dan migrasi namanya `kode`
+                'uraian_kas'     => $request->uraian_kas . ' ' . Carbon::createFromFormat('m-Y', $request->nama_periode)->format('m-Y'),
+                'tanggal_kas'    => Carbon::parse($request->tanggal_kas)->format('Y-m-d'),
+                'periode_bulan'  => Carbon::createFromFormat('m-Y', $request->nama_periode)->format('m-Y'),
+                'uang_masuk'     => $request->uang_masuk ?? 0,
+                'uang_keluar'    => $request->uang_keluar ?? 0,
+                'saldo'          => $request->saldo ?? 0,
+                'keterangan'     => $request->keterangan,
+            ]);
+
+            return redirect()->route('kas.index')->with('success', 'Data berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            Log::error('Gagal menyimpan kas: ' . $e->getMessage());
+
+            return redirect()->route('kas.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
 
@@ -131,7 +183,7 @@ class KasController extends Controller
 
                 // Generate kode_kas (ID akan otomatis terisi setelah create, jadi pakai uniqid() atau timestamp sementara)
 
-                $kodeKas = 'Kas-OUT-' . $data['id'] . '-' . str_replace('-', '', $data['periode_bulan']);
+                $kodeKas = 'Kas-OUT-' . $data['id'] . '-' . str_replace('-', '', Carbon::parse($data['periode_bulan'])->format('m-Y'));
 
                 // Cek apakah kode kas sudah ada
                 if (KasWarga::where('kode', $kodeKas)->exists()) {
@@ -144,7 +196,7 @@ class KasController extends Controller
                     'kode' => $kodeKas,
                     'uraian_kas' => $data['uraian_kas'],
                     'tanggal_kas' => Carbon::parse($data['tanggal_kas'])->format('Y-m-d'),
-                    'periode_bulan' => $data['periode_bulan'],
+                    'periode_bulan' => Carbon::createFromFormat('m-Y', $request->nama_periode)->format('m-Y'),
                     'uang_masuk' => $uangMasuk,
                     'uang_keluar' => $uangKeluar,
                     'saldo' => $saldoBaru,
@@ -194,7 +246,17 @@ class KasController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Logic to update a specific kas entry
+        $request->validate([
+            'uraian_kas' => 'required|string|max:255',
+            'tanggal_kas' => 'required|date',
+            'periode_bulan' => 'required|string|max:255',
+            'uang_masuk' => 'nullable|numeric|min:0',
+            'uang_keluar' => 'nullable|numeric|min:0',
+            'keterangan' => 'nullable|string|max:255',
+        ]);
+        $kasWarga = KasWarga::findOrFail($id);
+        $kasWarga->update($request->all());
+        return redirect()->route('kas.index')->with('success', 'Data kas berhasil diperbarui.');
     }
 
     /**
@@ -205,6 +267,11 @@ class KasController extends Controller
      */
     public function destroy($id)
     {
-        // Logic to delete a specific kas entry
+        $kasWarga = KasWarga::findOrFail($id);
+
+        // Hapus entri kas
+        $kasWarga->delete();
+
+        return redirect()->route('kas.index')->with('success', 'Data kas berhasil dihapus.');
     }
 }

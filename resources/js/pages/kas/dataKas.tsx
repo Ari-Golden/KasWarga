@@ -16,7 +16,9 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as React from 'react';
 import * as XLSX from 'xlsx';
-import { ArrowUpDown, Download } from 'lucide-react';
+import { ArrowUpDown, Download, Plus, Edit, Trash } from 'lucide-react';
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
+import { router } from '@inertiajs/react';
 
 interface LaporanKas {
   id: number;
@@ -26,7 +28,7 @@ interface LaporanKas {
   periode_bulan: string;
   uang_masuk: number;
   uang_keluar: number;
-  saldo?: number; // Optional, dihitung per baris
+  saldo?: number;
 }
 
 const formatTanggalIndo = (tanggal: string) =>
@@ -50,8 +52,54 @@ interface LaporanKasTableProps {
 export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
   const [globalFilter, setGlobalFilter] = React.useState('');
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [formData, setFormData] = React.useState({
+    id: 0,
+    kode: '',
+    tanggal_kas: '',
+    uraian_kas: '',
+    periode_bulan: '',
+    uang_masuk: 0,
+    uang_keluar: 0,
+  });
+  const [isEdit, setIsEdit] = React.useState(false);
 
   const data = kasWargas ?? [];
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const payload = {
+      kode: formData.kode,
+      nama_periode: formData.periode_bulan,
+      uraian_kas: formData.uraian_kas,
+      tanggal_kas: formData.tanggal_kas,
+      periode_bulan: formData.periode_bulan,
+      uang_masuk: formData.uang_masuk,
+      uang_keluar: formData.uang_keluar,
+    };
+
+    if (isEdit && formData.id) {
+      router.put(route('kas.update', formData.id), payload, {
+        onSuccess: () => setIsModalOpen(false),
+      });
+    } else {
+      router.post(route('kas.storeIncomeLain'), payload, {
+        onSuccess: () => setIsModalOpen(false),
+      });
+    }
+  };
+
+  const handleEdit = (kas: LaporanKas) => {
+    setFormData({ ...kas });
+    setIsEdit(true);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (id: number) => {
+    if (confirm('Yakin ingin menghapus data ini?')) {
+      router.delete(route('kas.destroy', id));
+    }
+  };
 
   const columns = React.useMemo<ColumnDef<LaporanKas>[]>(
     () => [
@@ -127,6 +175,15 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
           );
         },
       },
+      {
+        header: 'Aksi',
+        cell: ({ row }) => (
+          <div className="flex gap-2">
+            <Button variant="outline" size="icon" onClick={() => handleEdit(row.original)}><Edit className="w-4 h-4" /></Button>
+            <Button variant="destructive" size="icon" onClick={() => handleDelete(row.original.id)}><Trash className="w-4 h-4" /></Button>
+          </div>
+        ),
+      },
     ],
     []
   );
@@ -146,7 +203,6 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  // Hitung saldo berdasarkan urutan sorting dan filter
   const sortedRowsWithSaldo = React.useMemo(() => {
     let saldo = 0;
     return table.getSortedRowModel().rows.map((row) => {
@@ -200,18 +256,10 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
       <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <h1 className="text-2xl font-bold">Laporan Kas Bulanan</h1>
         <div className="flex gap-2">
-          <Input
-            placeholder="Cari..."
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            className="w-64"
-          />
-          <Button onClick={exportExcel} variant="outline">
-            <Download className="mr-2 h-4 w-4" /> Excel
-          </Button>
-          <Button onClick={exportPDF} variant="outline">
-            <Download className="mr-2 h-4 w-4" /> PDF
-          </Button>
+          <Input placeholder="Cari..." value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} className="w-64" />
+          <Button onClick={exportExcel}><Download className="mr-2 h-4 w-4" /> Excel</Button>
+          <Button onClick={exportPDF}><Download className="mr-2 h-4 w-4" /> PDF</Button>
+          <Button onClick={() => { setIsEdit(false); setFormData({ id: 0, kode: '', tanggal_kas: '', uraian_kas: '', periode_bulan: '', uang_masuk: 0, uang_keluar: 0 }); setIsModalOpen(true); }}><Plus className="mr-2 h-4 w-4" /> Tambah</Button>
         </div>
       </div>
 
@@ -245,23 +293,61 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
                 <td className="px-4 py-2 text-right font-bold text-blue-700">
                   {formatRupiah(row.saldo ?? 0)}
                 </td>
+                <td className="px-4 py-2 text-center">
+                  <div className="flex justify-center gap-2">
+                    <Button size="icon" variant="outline" onClick={() => handleEdit(row)}><Edit className="w-4 h-4" /></Button>
+                    <Button size="icon" variant="destructive" onClick={() => handleDelete(row.id)}><Trash className="w-4 h-4" /></Button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>cl
+      </div>
 
       <div className="mt-6 flex items-center justify-between">
-        <Button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} variant="outline">
-          Previous
-        </Button>
+        <Button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} variant="outline">Previous</Button>
         <span className="text-sm text-muted-foreground">
           Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
         </span>
-        <Button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} variant="outline">
-          Next
-        </Button>
+        <Button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} variant="outline">Next</Button>
       </div>
+
+      <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="fixed inset-0 z-50 flex items-center justify-center">
+        <DialogPanel className="w-full max-w-md rounded bg-white p-6 shadow">
+          <DialogTitle className="mb-4 text-lg font-bold">{isEdit ? 'Edit Data Kas' : 'Tambah Data Kas'}</DialogTitle>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Kode</label>
+              <Input placeholder="Kode" value={formData.kode} onChange={(e) => setFormData({ ...formData, kode: e.target.value })} disabled />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Tanggal Kas</label>
+              <Input type="date" value={formData.tanggal_kas} onChange={(e) => setFormData({ ...formData, tanggal_kas: e.target.value })} required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Uraian</label>
+              <Input placeholder="Uraian" value={formData.uraian_kas} onChange={(e) => setFormData({ ...formData, uraian_kas: e.target.value })} required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Periode Bulan</label>
+              <Input type="month" value={formData.periode_bulan} onChange={(e) => setFormData({ ...formData, periode_bulan: e.target.value })} required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Uang Masuk</label>
+              <Input type="number" value={formData.uang_masuk} onChange={(e) => setFormData({ ...formData, uang_masuk: +e.target.value })} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Uang Keluar</label>
+              <Input type="number" value={formData.uang_keluar} onChange={(e) => setFormData({ ...formData, uang_keluar: +e.target.value })} />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>Batal</Button>
+              <Button type="submit">Simpan</Button>
+            </div>
+          </form>
+        </DialogPanel>
+      </Dialog>
     </div>
   );
 }
