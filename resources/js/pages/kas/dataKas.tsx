@@ -259,7 +259,8 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
           <Input placeholder="Cari..." value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} className="w-64" />
           <Button onClick={exportExcel}><Download className="mr-2 h-4 w-4" /> Excel</Button>
           <Button onClick={exportPDF}><Download className="mr-2 h-4 w-4" /> PDF</Button>
-          <Button onClick={() => { setIsEdit(false); setFormData({ id: 0, kode: '', tanggal_kas: '', uraian_kas: '', periode_bulan: '', uang_masuk: 0, uang_keluar: 0 }); setIsModalOpen(true); }}><Plus className="mr-2 h-4 w-4" /> Tambah</Button>
+          <Button onClick={() => { setIsEdit(false); setFormData({ id: 0, kode: '', tanggal_kas: '', uraian_kas: '', periode_bulan: '', uang_masuk: 0, uang_keluar: 0 });
+           setIsModalOpen(true); }}><Plus className="mr-2 h-4 w-4" /> Tambah</Button>
         </div>
       </div>
 

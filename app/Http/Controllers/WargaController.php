@@ -56,6 +56,7 @@ class WargaController extends Controller
 
     public function update(Request $request, Warga $warga)
     {
+     
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'no_kk' => 'required|string|max:255|unique:wargas,no_kk,' . $warga->id,

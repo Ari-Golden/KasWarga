@@ -1,11 +1,22 @@
+/**
+ * Renders a data table for managing resident (warga) information with search, pagination, and CRUD functionality.
+ * 
+ * @component
+ * @param {Object} props - Component properties
+ * @param {Warga[]} props.wargas - Array of resident data to be displayed in the table
+ * 
+ * @returns {JSX.Element} A page with a table of residents, search input, and modal dialogs for adding/editing/deleting residents
+ * 
+ * @example
+ * <DataWarga wargas={residentData} />
+ */
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog } from '@headlessui/react';
-import { router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { ColumnDef, flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 import { FormEventHandler, useEffect, useMemo, useState } from 'react';
-import { Link } from '@inertiajs/react';
 
 function formatDate(dateString: string) {
     const date = new Date(dateString);
@@ -19,9 +30,11 @@ function formatDate(dateString: string) {
 type Warga = {
     id: number;
     nama: string;
+    no_kk: string;
     no_ktp: string;
     alamat: string;
-    no_hp: string;   
+    rt_rw: string;
+    no_hp: string;
     status: string;
 };
 
@@ -30,7 +43,7 @@ interface DataWargaProps {
 }
 
 export default function DataWarga({ wargas }: DataWargaProps) {
-    console.log('DataWarga component rendered with wargas:', wargas);
+    
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredData, setFilteredData] = useState<Warga[]>(wargas || []);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,8 +51,10 @@ export default function DataWarga({ wargas }: DataWargaProps) {
     const [currentWarga, setCurrentWarga] = useState<Warga | null>(null);
     const [formData, setFormData] = useState({
         nama: '',
+        no_kk: '',
         no_ktp: '',
         alamat: '',
+        rt_rw: '',
         no_hp: '',
         status: '',
     });
@@ -56,8 +71,8 @@ export default function DataWarga({ wargas }: DataWargaProps) {
                         w.no_ktp.toLowerCase().includes(lower) ||
                         w.alamat.toLowerCase().includes(lower) ||
                         w.no_hp.toLowerCase().includes(lower) ||
-                        w.status.toLowerCase().includes(lower)
-                )
+                        w.status.toLowerCase().includes(lower),
+                ),
             );
         }
     }, [searchTerm, wargas]);
@@ -68,18 +83,22 @@ export default function DataWarga({ wargas }: DataWargaProps) {
             warga
                 ? {
                       nama: warga.nama,
+                      no_kk: warga.no_kk,
                       no_ktp: warga.no_ktp,
                       alamat: warga.alamat,
+                      rt_rw: warga.rt_rw,
                       no_hp: warga.no_hp,
                       status: warga.status,
                   }
                 : {
                       nama: '',
+                      no_kk: '',
                       no_ktp: '',
                       alamat: '',
+                      rt_rw: '',
                       no_hp: '',
-                       status: '',
-                  }
+                      status: '',
+                  },
         );
         setIsModalOpen(true);
     };
@@ -112,13 +131,22 @@ export default function DataWarga({ wargas }: DataWargaProps) {
     const columns = useMemo<ColumnDef<Warga, any>[]>(
         () => [
             {
-                id: 'no',
+                accessorKey: 'index',
                 header: ({ column }) => (
                     <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
                         No <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                 ),
                 cell: (info) => info.row.index + 1,
+            },
+            {
+                accessorKey: 'id',
+                header: ({ column }) => (
+                    <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                        id_warga <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                ),
+                cell: (info) => info.getValue(),
             },
             {
                 accessorKey: 'nama',
@@ -128,10 +156,7 @@ export default function DataWarga({ wargas }: DataWargaProps) {
                     </Button>
                 ),
                 cell: (info) => (
-                    <Link
-                        className="text-blue-500 hover:underline"
-                        href={route('warga.show', info.row.original.id)}
-                    >
+                    <Link className="text-blue-500 hover:underline" href={route('warga.show', info.row.original.id)}>
                         {info.getValue()}
                     </Link>
                 ),
@@ -170,9 +195,10 @@ export default function DataWarga({ wargas }: DataWargaProps) {
                         Status <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                 ),
-                cell: (info) => info.getValue() === '1' ? 'Tidak Aktif' : 'Aktif',
+                cell: (info) => (info.getValue() === '1' ? 'Tidak Aktif' : 'Aktif'),
             },
             {
+                id: 'actions',
                 header: 'Aksi',
                 cell: ({ row }) => (
                     <div>
@@ -186,7 +212,7 @@ export default function DataWarga({ wargas }: DataWargaProps) {
                 ),
             },
         ],
-        []
+        [],
     );
 
     const table = useReactTable({
@@ -269,6 +295,14 @@ export default function DataWarga({ wargas }: DataWargaProps) {
                         />
                         <input
                             type="text"
+                            placeholder="no_kk"
+                            value={formData.no_kk}
+                            onChange={(e) => setFormData({ ...formData, no_kk: e.target.value })}
+                            className="w-full rounded border p-2"
+                            required
+                        />
+                        <input
+                            type="text"
                             placeholder="no_ktp"
                             value={formData.no_ktp}
                             onChange={(e) => setFormData({ ...formData, no_ktp: e.target.value })}
@@ -282,8 +316,23 @@ export default function DataWarga({ wargas }: DataWargaProps) {
                             onChange={(e) => setFormData({ ...formData, alamat: e.target.value })}
                             className="w-full rounded border p-2"
                             required
-                        />                        
-                       
+                        />
+                        <input
+                            type="text"
+                            placeholder="RT/RW"
+                            value={formData.rt_rw}
+                            onChange={(e) => setFormData({ ...formData, rt_rw: e.target.value })}
+                            className="w-full rounded border p-2"
+                            required
+                        />
+                        <input
+                            type="text"
+                            placeholder="No HP"
+                            value={formData.no_hp}
+                            onChange={(e) => setFormData({ ...formData, no_hp: e.target.value })}
+                            className="w-full rounded border p-2"
+                            required
+                        />
                         <select
                             value={formData.status}
                             onChange={(e) => setFormData({ ...formData, status: e.target.value })}

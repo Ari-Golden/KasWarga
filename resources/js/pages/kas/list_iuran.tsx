@@ -221,7 +221,7 @@ export default function ListIuran({ iurans, wargas, jenisIuran }: ListIuranProps
         getSortedRowModel: getSortedRowModel(),
         state: {},
     });
-    console.log(wargas)
+   
 
     return (
         <div className="p-4">

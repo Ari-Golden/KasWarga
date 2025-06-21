@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ArrowUpDown } from "lucide-react";
 import { ColumnDef, flexRender, getCoreRowModel, getPaginationRowModel, SortingState, getSortedRowModel, useReactTable } from '@tanstack/react-table';
-import { useRouter } from "@inertiajs/react";
+
 import { Button } from "@/components/ui/button";
 
 function formatDate(dateString: string) {

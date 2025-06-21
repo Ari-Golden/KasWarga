@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Dasboard;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IuranWargaController;
 use App\Http\Controllers\JenisIuranController;
 use App\Http\Controllers\KasController;
@@ -15,7 +15,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', [Dasboard::class, 'index'])->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('data_warga', function () {
         return Inertia::render('warga/index');
     })->name('profile');
