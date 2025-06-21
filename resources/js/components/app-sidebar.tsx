@@ -54,12 +54,22 @@ const data = {
       icon: IconChartBar,
     },
     {
+      title: "Penarikan Iuran Kas dan Rukem",
+      url: "iuran-warga/create",
+      icon: IconChartBar,
+    },
+    {
       title: "Pengeluaran",
       url: "/pengeluaran",
       icon: IconFolder,
     },
     {
       title: "Kas Warga",
+      url: "/kas",
+      icon: IconDatabase,
+    },
+    {
+      title: "Rukem",
       url: "/kas",
       icon: IconDatabase,
     },

@@ -7,6 +7,7 @@ import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import data from './data.json';
 import ListIuran from '@/pages/kas/list_iuran';
+import { Head } from '@inertiajs/react';
 
 interface PageProps {
   kas?: any[];
@@ -33,6 +34,7 @@ export default function Page({
 }: PageProps) 
 {
   return (
+    <>    
     
     <SidebarProvider
       style={
@@ -64,5 +66,6 @@ export default function Page({
         </div>
       </SidebarInset>
     </SidebarProvider>
+    </>
   );
 }

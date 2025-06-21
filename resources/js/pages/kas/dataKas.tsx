@@ -252,7 +252,7 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
   };
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto px-2 md:px-6 py-6">
       <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <h1 className="text-2xl font-bold">Laporan Kas Bulanan</h1>
         <div className="flex gap-2">
@@ -265,12 +265,12 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
       </div>
 
       <div className="rounded-xl border shadow-sm overflow-x-auto">
-        <table className="min-w-full text-sm">
+        <table className="min-w-full text-xs md:text-sm">
           <thead className="bg-gray-100">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <th key={header.id} className="px-4 py-2 text-left font-semibold text-muted-foreground">
+                  <th key={header.id} className="px-4 py-2 md:px-4 md:py-2 text-left font-semibold text-muted-foreground">
                     {flexRender(header.column.columnDef.header, header.getContext())}
                   </th>
                 ))}
@@ -280,21 +280,21 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
           <tbody>
             {sortedRowsWithSaldo.map((row, index) => (
               <tr key={index} className="border-t">
-                <td className="px-4 py-2 text-right">{row.id}</td>
-                <td className="px-4 py-2 text-right">{row.kode}</td>
-                <td className="px-4 py-2 text-center">{row.periode_bulan}</td>
-                <td className="px-4 py-2">{formatTanggalIndo(row.tanggal_kas)}</td>
-                <td className="px-4 py-2">{row.uraian_kas}</td>
-                <td className="px-4 py-2 text-right text-green-600">
+                <td className="px-2 py-1 md:px-4 md:py-2 text-right">{row.id}</td>
+                <td className="px-2 py-1 md:px-4 md:py-2 text-right">{row.kode}</td>
+                <td className="px-4 py-2 md:px-4 md:py-2 text-center">{row.periode_bulan}</td>
+                <td className="px-4 py-2 md:px-4 md:py-2">{formatTanggalIndo(row.tanggal_kas)}</td>
+                <td className="px-4 py-2 md:px-4 md:py-2">{row.uraian_kas}</td>
+                <td className="px-4 py-2 md:px-4 md:py-2 text-right text-green-600">
                   {row.uang_masuk > 0 ? formatRupiah(row.uang_masuk) : '-'}
                 </td>
-                <td className="px-4 py-2 text-right text-red-600">
+                <td className="px-4 py-2 md:px-4 md:py-2 text-right text-red-600">
                   {row.uang_keluar > 0 ? formatRupiah(row.uang_keluar) : '-'}
                 </td>
-                <td className="px-4 py-2 text-right font-bold text-blue-700">
+                <td className="px-4 py-2 md:px-4 md:py-2text-right font-bold text-blue-700">
                   {formatRupiah(row.saldo ?? 0)}
                 </td>
-                <td className="px-4 py-2 text-center">
+                <td className="px-4 py-2 md:px-4 md:py-2 text-center">
                   <div className="flex justify-center gap-2">
                     <Button size="icon" variant="outline" onClick={() => handleEdit(row)}><Edit className="w-4 h-4" /></Button>
                     <Button size="icon" variant="destructive" onClick={() => handleDelete(row.id)}><Trash className="w-4 h-4" /></Button>
