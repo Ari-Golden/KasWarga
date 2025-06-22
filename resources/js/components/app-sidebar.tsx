@@ -59,7 +59,7 @@ const data = {
       icon: IconChartBar,
     },
     {
-      title: "Pengeluaran",
+      title: "Pengeluaran Kas",
       url: "/pengeluaran",
       icon: IconFolder,
     },
@@ -68,9 +68,14 @@ const data = {
       url: "/kas",
       icon: IconDatabase,
     },
+     {
+      title: "Pengeluaran Rukem",
+      url: "/pengeluaran",
+      icon: IconFolder,
+    },
     {
       title: "Rukem",
-      url: "/kas",
+      url: "/rukem",
       icon: IconDatabase,
     },
     {

@@ -6,6 +6,7 @@ use App\Http\Controllers\JenisIuranController;
 use App\Http\Controllers\KasController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PeriodeController;
+use App\Http\Controllers\RukemController;
 use App\Http\Controllers\WargaController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -32,6 +33,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/kas/kas-out', [KasController::class, 'storeKasOut'])->name('kas.storeKasOut');
     Route::post('/kas/income-lain', [KasController::class, 'storeIncomeLain'])->name('kas.storeIncomeLain');
     Route::resource('periode',PeriodeController::class);
+    Route::resource('rukem',RukemController::class);
+    Route::post('rukem/income-lain',[RukemController::class,'storeLain'])->name('rukem.storeLain');
+    Route::post('rukem/rukem-out',[RukemController::class,'storeRukemOut'])->name('rukem.storeRukemOut');
 });
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

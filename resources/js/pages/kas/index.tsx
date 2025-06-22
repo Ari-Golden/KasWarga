@@ -137,7 +137,7 @@ export default function Index(_: IndexProps) {
                                                         // Kirim ke inertia
                                                         import('@inertiajs/react').then(({ router }) => {
                                                             const periode = (_.periodes || []).find((p) => p.id?.toString() === selectedPeriode);
-                                                            router.post('/kas', {
+                                                            router.post('/rukem', {
                                                                 iurans: filteredIurans,
                                                                 periode_id: selectedPeriode,
                                                                 nama_periode: periode?.nama_periode || '',
@@ -291,7 +291,7 @@ export default function Index(_: IndexProps) {
 
                                                             // Kirim ke inertia
                                                             import('@inertiajs/react').then(({ router }) => {
-                                                                router.post('/kas/kas-out', {
+                                                                router.post('/rukem/rukem-out', {
                                                                     pengeluaranKas: filteredPengeluaranKas.map((item: any) => ({
                                                                         id: item.id,
                                                                         uraian_kas: item.nama_pengeluaran,
