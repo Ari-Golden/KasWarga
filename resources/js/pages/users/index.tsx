@@ -4,16 +4,18 @@ import { SidebarHeader, SidebarInset, SidebarProvider } from '@/components/ui/si
 import { Head } from '@inertiajs/react';
 import DataUsers from './data_users';
 
-type User = {
-    id: number;
-    name: string;
-    email: string;
+type Role = {
+  id: number;
+  name: string;
 };
 
-type Role = {
-    id: number;
-    name: string;
+type User = {
+  id: number;
+  name: string;
+  email: string;
+  roles: Role[]; // <= ini harus ada
 };
+
 
 interface IndexProps {
     users: User[];
@@ -35,7 +37,7 @@ export default function Index({ users, roles }: IndexProps) {
             <AppSidebar variant="inset" />
             <SidebarInset>
                 <SidebarHeader />
-                <div className="mx-auto ml-4 flex w-full max-w-screen-xl flex-1 flex-col gap-2">
+                <div className="ml-4 flex w-full flex-1 flex-col gap-4 px-4">
                     <h1 className="text-2xl font-semibold text-gray-800">User Management</h1>
 
                     <Card className="mt-4 p-4 shadow-md">
@@ -45,7 +47,7 @@ export default function Index({ users, roles }: IndexProps) {
                                 <CardDescription>Data user aplikasi</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <DataUsers users={users} />
+                                <DataUsers users={users} roles={roles} />
                             </CardContent>
                         </Card>
                     </Card>

@@ -1,17 +1,7 @@
-/**
- * Renders a data table for managing resident (warga) information with search, pagination, and CRUD functionality.
- * 
- * @component
- * @param {Object} props - Component properties
- * @param {Warga[]} props.wargas - Array of resident data to be displayed in the table
- * 
- * @returns {JSX.Element} A page with a table of residents, search input, and modal dialogs for adding/editing/deleting residents
- * 
- * @example
- * <DataWarga wargas={residentData} />
- */
+
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { can } from '@/lib/can';
 import { Dialog } from '@headlessui/react';
 import { Link, router } from '@inertiajs/react';
 import { ColumnDef, flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
@@ -202,12 +192,12 @@ export default function DataWarga({ wargas }: DataWargaProps) {
                 header: 'Aksi',
                 cell: ({ row }) => (
                     <div>
-                        <button className="text-blue-500 hover:underline" onClick={() => openModal(row.original)}>
+                        {can('warga.edit')&&<button className="text-blue-500 hover:underline" onClick={() => openModal(row.original)}>
                             Edit
-                        </button>
-                        <button className="ml-2 text-red-500 hover:underline" onClick={() => confirmDelete(row.original)}>
+                        </button>}
+                        {can('warga.delete')&&<button className="ml-2 text-red-500 hover:underline" onClick={() => confirmDelete(row.original)}>
                             Hapus
-                        </button>
+                        </button>}
                     </div>
                 ),
             },
@@ -235,9 +225,9 @@ export default function DataWarga({ wargas }: DataWargaProps) {
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <div>
-                    <Button onClick={() => openModal(null)} className="bg-indigo-600 text-white hover:bg-indigo-700">
+                    {can('warga.create')&&<Button onClick={() => openModal(null)} className="bg-indigo-600 text-white hover:bg-indigo-700">
                         + Tambah Warga
-                    </Button>
+                    </Button>}
                 </div>
             </div>
 

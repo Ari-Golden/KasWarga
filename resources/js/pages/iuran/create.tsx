@@ -18,6 +18,7 @@ import { router } from '@inertiajs/react';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import { can } from '@/lib/can';
 
 const formSchema = z.object({
   id_warga: z.string().min(1, 'Pilih warga'),
@@ -161,7 +162,7 @@ export default function CreateIuran({
             )}
           />
          
-          <Button type="submit" className="w-full">Simpan</Button>
+          {can('iuran.create')&&<Button type="submit" className="w-full">Simpan</Button>}
           <Button
             type="button"
             variant="outline"

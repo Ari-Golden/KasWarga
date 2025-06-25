@@ -10,6 +10,7 @@ import DataPeriode from '@/pages/kas/periode/dataPeriode';
 import { Head } from '@inertiajs/react';
 import { useState } from 'react';
 import LaporanKasTable from './dataKas';
+import { can } from '@/lib/can';
 
 interface IndexProps {
     iurans?: any[]; // opsional
@@ -122,7 +123,7 @@ export default function Index(_: IndexProps) {
                                                             ))}
                                                         </SelectContent>
                                                     </Select>
-                                                    <Button
+                                                   {can('rukem.create')&& <Button
                                                         onClick={() => {
                                                             const periode = (_.periodes || []).find((p) => p.id?.toString() === selectedPeriode);
                                                             
@@ -168,7 +169,7 @@ export default function Index(_: IndexProps) {
                                                         }}
                                                     >
                                                         Kirim data iuran bulanan Ke Kas
-                                                    </Button>
+                                                    </Button>}
                                                 </div>
                                                 {selectedPeriode ? (
                                                     (() => {
@@ -291,7 +292,7 @@ export default function Index(_: IndexProps) {
                                                                 ))}
                                                             </SelectContent>
                                                         </Select>
-                                                        <Button
+                                                        {can('rukem.create')&&<Button
                                                             onClick={() => {
                                                                 // Kirim data iuran bulanan yang difilter ke kas Controller
                                                                 const filteredPengeluaranRukem = (_.pengeluaranRukem || []).filter(
@@ -333,7 +334,7 @@ export default function Index(_: IndexProps) {
                                                             }}
                                                         >
                                                             Kirim data iuran bulanan Ke Kas
-                                                        </Button>
+                                                        </Button>}
                                                     </div>
                                                 </div>
                                                 <div className="mb-2 font-semibold">

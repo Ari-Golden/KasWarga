@@ -7,6 +7,7 @@ import { ArrowUpDown } from 'lucide-react';
 import { FormEventHandler, useEffect, useMemo, useState } from 'react';
 
 import { Link } from '@inertiajs/react';
+import { can } from '@/lib/can';
 
 function formatDate(dateString: string) {
     const date = new Date(dateString);
@@ -180,12 +181,12 @@ export default function ListPengeluaran({ pengeluarans}: ListPengeluaranProps) {
                 header: 'Aksi',
                 cell: ({ row }) => (
                     <div>
-                        <button className="text-blue-500 hover:underline" onClick={() => openModal(row.original)}>
+                        {can('kas.edit')&&<button className="text-blue-500 hover:underline" onClick={() => openModal(row.original)}>
                             Edit
-                        </button>
-                        <button className="ml-2 text-red-500 hover:underline" onClick={() => confirmDelete(row.original)}>
+                        </button>}
+                        {can('kas.delete')&&<button className="ml-2 text-red-500 hover:underline" onClick={() => confirmDelete(row.original)}>
                             Hapus
-                        </button>
+                        </button>}
                     </div>
                 ),
             },
@@ -212,9 +213,9 @@ export default function ListPengeluaran({ pengeluarans}: ListPengeluaranProps) {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)} />
                 <div className="mb-4">
-                    <Button onClick={() => openModal()} className="rounded bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">
+                    {can('kas.create')&&<Button onClick={() => openModal()} className="rounded bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">
                         + Tambah Pengeluaran
-                    </Button>
+                    </Button>}
                 </div>
             </div>
 

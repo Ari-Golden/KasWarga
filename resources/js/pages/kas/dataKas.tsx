@@ -19,6 +19,7 @@ import * as XLSX from 'xlsx';
 import { ArrowUpDown, Download, Plus, Edit, Trash } from 'lucide-react';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { router } from '@inertiajs/react';
+import { can } from '@/lib/can';
 
 interface LaporanKas {
   id: number;
@@ -179,8 +180,8 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
         header: 'Aksi',
         cell: ({ row }) => (
           <div className="flex gap-2">
-            <Button variant="outline" size="icon" onClick={() => handleEdit(row.original)}><Edit className="w-4 h-4" /></Button>
-            <Button variant="destructive" size="icon" onClick={() => handleDelete(row.original.id)}><Trash className="w-4 h-4" /></Button>
+            {can('kas.edit')&&<Button variant="outline" size="icon" onClick={() => handleEdit(row.original)}><Edit className="w-4 h-4" /></Button>}
+            {can('kas.delete')&&<Button variant="destructive" size="icon" onClick={() => handleDelete(row.original.id)}><Trash className="w-4 h-4" /></Button>}
           </div>
         ),
       },
@@ -259,8 +260,8 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
           <Input placeholder="Cari..." value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} className="w-64" />
           <Button onClick={exportExcel}><Download className="mr-2 h-4 w-4" /> Excel</Button>
           <Button onClick={exportPDF}><Download className="mr-2 h-4 w-4" /> PDF</Button>
-          <Button onClick={() => { setIsEdit(false); setFormData({ id: 0, kode: '', tanggal_kas: '', uraian_kas: '', periode_bulan: '', uang_masuk: 0, uang_keluar: 0 });
-           setIsModalOpen(true); }}><Plus className="mr-2 h-4 w-4" /> Tambah</Button>
+          {can('kas.create')&&<Button onClick={() => { setIsEdit(false); setFormData({ id: 0, kode: '', tanggal_kas: '', uraian_kas: '', periode_bulan: '', uang_masuk: 0, uang_keluar: 0 });
+           setIsModalOpen(true); }}><Plus className="mr-2 h-4 w-4" /> Tambah</Button>}
         </div>
       </div>
 

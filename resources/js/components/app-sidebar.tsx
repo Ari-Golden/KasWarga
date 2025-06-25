@@ -33,7 +33,14 @@ import {
 } from "@/components/ui/sidebar";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { props: pageProps } = usePage();
+  const { props: pageProps } = usePage<{
+    auth?: {
+      user?: {
+        name?: string;
+        email?: string;
+      };
+    };
+  }>();
   const user = pageProps.auth?.user;
 
   const data = {

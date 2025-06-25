@@ -3,6 +3,7 @@ import { useForm } from "@inertiajs/react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { can } from "@/lib/can";
 
 const CreatePeriodeForm: React.FC = () => {
     const { data, setData, post, processing, errors } = useForm({
@@ -71,9 +72,9 @@ const CreatePeriodeForm: React.FC = () => {
                         <span className="text-red-500 text-xs">{errors.tanggal_akhir}</span>
                     )}
                 </div>
-                <Button type="submit" className="self-end" disabled={processing}>
+                {can('kas.create')&&<Button type="submit" className="self-end" disabled={processing}>
                     Simpan Periode
-                </Button>
+                </Button>}
             </form>
         </div>
     );

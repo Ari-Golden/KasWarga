@@ -8,6 +8,7 @@ import { FormEventHandler, useEffect, useMemo, useState } from 'react';
 
 import { Link } from '@inertiajs/react';
 import { Label } from '@/components/ui/label';
+import { can } from '@/lib/can';
 
 function formatDate(dateString: string) {
     const date = new Date(dateString);
@@ -200,12 +201,12 @@ export default function ListIuran({ iurans, wargas, jenisIuran }: ListIuranProps
                 header: 'Aksi',
                 cell: ({ row }) => (
                     <div>
-                        <button className="text-blue-500 hover:underline" onClick={() => openModal(row.original)}>
+                        {can('iuran.edit')&&<button className="text-blue-500 hover:underline" onClick={() => openModal(row.original)}>
                             Edit
-                        </button>
-                        <button className="ml-2 text-red-500 hover:underline" onClick={() => confirmDelete(row.original)}>
+                        </button>}
+                        {can('iuran.delete')&&<button className="ml-2 text-red-500 hover:underline" onClick={() => confirmDelete(row.original)}>
                             Hapus
-                        </button>
+                        </button>}
                     </div>
                 ),
             },
@@ -233,9 +234,9 @@ export default function ListIuran({ iurans, wargas, jenisIuran }: ListIuranProps
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <div className="mb-4">
-                    <Link href={route('iuran-warga.create')} className="rounded bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">
+                    {can('iuran.create')&&<Link href={route('iuran-warga.create')} className="rounded bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">
                         + Tambah Iuran
-                    </Link>
+                    </Link>}
                 </div>
             </div>
 

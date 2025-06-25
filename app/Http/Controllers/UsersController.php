@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
@@ -13,11 +14,12 @@ class UsersController extends Controller
      */
     public function index()
     {
-        return Inertia::render("users/index", [
-            'users' => User::all(),
-            'roles' => \Spatie\Permission\Models\Role::all(),
+        return Inertia::render('users/index', [
+            'users' => User::with('roles')->get(),
+            'roles' => Role::all(),
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -32,7 +34,19 @@ class UsersController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+            'roles' => 'array|required',
+        ]);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt('password'),
+        ]);
+        $user->syncRoles($request->roles);
+        return redirect()->route('users.index')->with('success', 'User berhasil ditambahkan');
     }
 
     /**
@@ -56,21 +70,22 @@ class UsersController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $data = $request->validate([
-            'name' => 'required|string',
+        // dd($request->all());
+        $request->validate([
+            'name' => 'required',
             'email' => 'required|email',
-            'password' => 'nullable|string|min:6',
+            'roles' => 'array|required',
         ]);
 
-        if ($data['password']) {
-            $data['password'] = bcrypt($data['password']);
-        } else {
-            unset($data['password']);
-        }
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            // cek apakah password ingin diubah
+            'password' => $request->password ? bcrypt($request->password) : $user->password,
+        ]);
 
-        $user->update($data);
-
-        return back();
+        $user->syncRoles($request->roles);
+        return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
     /**
@@ -78,6 +93,9 @@ class UsersController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
     }
 }

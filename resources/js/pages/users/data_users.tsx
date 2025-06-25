@@ -5,18 +5,29 @@ import { Link, router } from '@inertiajs/react';
 import { ColumnDef, flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 import { FormEventHandler, useEffect, useMemo, useState } from 'react';
+import { can } from '@/lib/can';
+
+type Role = {
+    id: number;
+    name: string;
+};
 
 type User = {
     id: number;
     name: string;
     email: string;
+    roles: {
+        id: number;
+        name: string;
+    }[];
 };
 
 interface DataUsersProps {
     users: User[];
+    roles: Role[];
 }
 
-export default function DataUsers({ users }: DataUsersProps) {
+export default function DataUsers({ users = [], roles = [] }: DataUsersProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredData, setFilteredData] = useState<User[]>(users || []);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,7 +37,9 @@ export default function DataUsers({ users }: DataUsersProps) {
         name: '',
         email: '',
         password: '',
+        roles: [] as number[], // role id
     });
+
     useEffect(() => {
         if (!searchTerm) {
             setFilteredData(users);
@@ -47,14 +60,17 @@ export default function DataUsers({ users }: DataUsersProps) {
                 ? {
                       name: user.name,
                       email: user.email,
-                      password: '', // Kosongkan saat edit
+                      password: '',
+                      roles: user.roles.map((r) => r.id), // isi role ID saat edit
                   }
                 : {
                       name: '',
                       email: '',
                       password: '',
+                      roles: [],
                   },
         );
+
         setIsModalOpen(true);
     };
 
@@ -126,16 +142,37 @@ export default function DataUsers({ users }: DataUsersProps) {
                 cell: (info) => info.getValue(),
             },
             {
+                accessorKey: 'roles',
+                header: ({ column }) => (
+                    <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                        Role <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                ),
+                cell: ({ getValue }) => {
+                    const roles = getValue() as { id: number; name: string }[];
+                    return (
+                        <div className="flex flex-wrap gap-1">
+                            {roles.map((role) => (
+                                <span key={role.id} className="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800">
+                                    {role.name}
+                                </span>
+                            ))}
+                        </div>
+                    );
+                },
+            },
+
+            {
                 id: 'actions',
                 header: 'Aksi',
                 cell: ({ row }) => (
                     <div>
-                        <button className="text-blue-500 hover:underline" onClick={() => openModal(row.original)}>
+                       {can('user.edit')&& <button className="text-blue-500 hover:underline" onClick={() => openModal(row.original)}>
                             Edit
-                        </button>
-                        <button className="ml-2 text-red-500 hover:underline" onClick={() => confirmDelete(row.original)}>
+                        </button>}
+                        {can('user.delete')&&<button className="ml-2 text-red-500 hover:underline" onClick={() => confirmDelete(row.original)}>
                             Hapus
-                        </button>
+                        </button>}
                     </div>
                 ),
             },
@@ -163,9 +200,9 @@ export default function DataUsers({ users }: DataUsersProps) {
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <div>
-                    <Button onClick={() => openModal(null)} className="bg-indigo-600 text-white hover:bg-indigo-700">
+                    {can('user.create')&&<Button onClick={() => openModal(null)} className="bg-indigo-600 text-white hover:bg-indigo-700">
                         + Tambah User
-                    </Button>
+                    </Button>}
                 </div>
             </div>
 
@@ -236,9 +273,33 @@ export default function DataUsers({ users }: DataUsersProps) {
                             value={formData.password}
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             className="w-full rounded border p-2"
-                            // required hanya saat tambah user
                             required={!currentUser}
                         />
+                        <div>
+                            <label className="mb-1 block text-sm font-medium">Pilih Role</label>
+                            <div className="grid max-h-48 grid-cols-2 gap-2 overflow-y-auto rounded border p-2">
+                                {roles.map((role) => (
+                                    <label key={role.id} className="flex items-center gap-2 text-sm">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.roles.includes(role.id)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    setFormData({ ...formData, roles: [...formData.roles, role.id] });
+                                                } else {
+                                                    setFormData({
+                                                        ...formData,
+                                                        roles: formData.roles.filter((id) => id !== role.id),
+                                                    });
+                                                }
+                                            }}
+                                        />
+                                        {role.name}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
                         <div className="flex justify-end gap-2">
                             <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)}>
                                 Batal

@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { can } from '@/lib/can';
 import { Dialog } from '@headlessui/react';
 import { router } from '@inertiajs/react';
 import { ColumnDef, flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
@@ -110,12 +111,12 @@ export default function ListJenisIuran({ jenisIuran }: ListJenisIuranProps) {
                 header: 'Aksi',
                 cell: ({ row }: { row: any }) => (
                     <div>
-                        <button className="text-blue-500 hover:underline" onClick={() => openModal(row.original)}>
+                        {can('iuran.edit')&&<button className="text-blue-500 hover:underline" onClick={() => openModal(row.original)}>
                             Edit
-                        </button>
-                        <button className="ml-2 text-red-500 hover:underline" onClick={() => confirmDelete(row.original)}>
+                        </button>}
+                        {can('iuran.delete')&&<button className="ml-2 text-red-500 hover:underline" onClick={() => confirmDelete(row.original)}>
                             Hapus
-                        </button>
+                        </button>}
                     </div>
                 ),
             },
@@ -143,7 +144,7 @@ export default function ListJenisIuran({ jenisIuran }: ListJenisIuranProps) {
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <div>
-                    <Button onClick={() => openModal(null)}>+ Tambah Jenis Iuran</Button>
+                    {can('iuran.create')&&<Button onClick={() => openModal(null)}>+ Tambah Jenis Iuran</Button>}
                 </div>
             </div>
             <Table>

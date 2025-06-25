@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { SidebarHeader, SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { can } from '@/lib/can';
 import { Dialog } from '@headlessui/react';
 import { Head, useForm } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
@@ -131,12 +132,12 @@ export default function Index({ roles = [], permissions = [] }: IndexProps) {
                 header: 'Aksi',
                 cell: ({ row }) => (
                     <div>
-                        <button className="text-blue-500 hover:underline" onClick={() => openModal(row.original)}>
+                       {can('role.edit')&& <button className="text-blue-500 hover:underline" onClick={() => openModal(row.original)}>
                             Edit
-                        </button>
-                        <button className="ml-2 text-red-500 hover:underline" onClick={() => confirmDelete(row.original)}>
+                        </button>}
+                        {can('role.delete')&&<button className="ml-2 text-red-500 hover:underline" onClick={() => confirmDelete(row.original)}>
                             Hapus
-                        </button>
+                            </button>}
                     </div>
                 ),
             },
@@ -179,9 +180,9 @@ export default function Index({ roles = [], permissions = [] }: IndexProps) {
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                         />
-                                        <Button onClick={() => openModal(null)} className="bg-primary text-white hover:bg-primary/90">
+                                        {can('role.create')&&<Button onClick={() => openModal(null)} className="bg-primary text-white hover:bg-primary/90">
                                             + Tambah Role
-                                        </Button>
+                                        </Button>}
                                     </div>
 
                                     <Table>

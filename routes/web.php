@@ -19,31 +19,43 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
     Route::get('data_warga', function () {
         return Inertia::render('warga/index');
-    })->name('profile');
+    })->name('profile')
+      ->middleware('role:admin|koordinator|warga');
 
-    // user
-    Route::resource('users',UsersController::class);
-    // role
-    Route::resource('role',RoleController::class);
-    
-    Route::get('/warga', [WargaController::class, 'index'])->name('warga.index');
-    Route::get('/warga/{warga}', [WargaController::class, 'show'])->name('warga.show');
-    Route::post('/warga', [WargaController::class, 'store'])->name('warga.store');
-    // Route::put('/warga/{warga}', [WargaController::class, 'update'])->name('warga.update');
-    Route::delete('/warga/{warga}', [WargaController::class, 'destroy'])->name('warga.destroy');
-    Route::match(['put', 'patch'],'/warga/{warga}', [WargaController::class, 'update'])->name('warga.update');
-    Route::resource('iuran-warga', IuranWargaController::class);
-    Route::resource('jenis-iuran', JenisIuranController::class);
-    Route::resource('pengeluaran',PengeluaranController::class);
-    Route::resource('kas',KasController::class);
-    Route::post('/kas/kas-out', [KasController::class, 'storeKasOut'])->name('kas.storeKasOut');
-    Route::post('/kas/income-lain', [KasController::class, 'storeIncomeLain'])->name('kas.storeIncomeLain');
-    Route::resource('periode',PeriodeController::class);
-    Route::resource('rukem',RukemController::class);
-    Route::post('rukem/income-lain',[RukemController::class,'storeLain'])->name('rukem.storeLain');
-    Route::post('rukem/rukem-out',[RukemController::class,'storeRukemOut'])->name('rukem.storeRukemOut');
+    // User management - hanya admin
+    Route::resource('users', UsersController::class)->middleware('role:admin');
+
+    // Role management - hanya admin
+    Route::resource('role', RoleController::class)->middleware('role:admin');
+
+    // Data warga
+    Route::get('/warga', [WargaController::class, 'index'])->name('warga.index')->middleware('role:admin|koordinator|warga');
+    Route::get('/warga/{warga}', [WargaController::class, 'show'])->name('warga.show')->middleware('role:admin|koordinator|warga');
+    Route::post('/warga', [WargaController::class, 'store'])->name('warga.store')->middleware('role:admin');
+    Route::match(['put', 'patch'], '/warga/{warga}', [WargaController::class, 'update'])->name('warga.update')->middleware('role:admin|koordinator|warga');
+    Route::delete('/warga/{warga}', [WargaController::class, 'destroy'])->name('warga.destroy')->middleware('role:admin');
+
+    // Iuran warga dan jenis iuran - admin dan koordinator
+    Route::resource('iuran-warga', IuranWargaController::class)->middleware('role:admin|koordinator');
+    Route::resource('jenis-iuran', JenisIuranController::class)->middleware('role:admin|koordinator');
+
+    // Pengeluaran dan kas - hanya admin
+    Route::resource('pengeluaran', PengeluaranController::class)->middleware('role:admin');
+    Route::resource('kas', KasController::class)->middleware('role:admin');
+    Route::post('/kas/kas-out', [KasController::class, 'storeKasOut'])->name('kas.storeKasOut')->middleware('role:admin');
+    Route::post('/kas/income-lain', [KasController::class, 'storeIncomeLain'])->name('kas.storeIncomeLain')->middleware('role:admin');
+
+    // Periode - hanya admin
+    Route::resource('periode', PeriodeController::class)->middleware('role:admin');
+
+    // Rukem - hanya admin
+    Route::resource('rukem', RukemController::class)->middleware('role:admin');
+    Route::post('rukem/income-lain', [RukemController::class, 'storeLain'])->name('rukem.storeLain')->middleware('role:admin');
+    Route::post('rukem/rukem-out', [RukemController::class, 'storeRukemOut'])->name('rukem.storeRukemOut')->middleware('role:admin');
 });
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
