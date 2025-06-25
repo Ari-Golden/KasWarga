@@ -6,7 +6,9 @@ use App\Http\Controllers\JenisIuranController;
 use App\Http\Controllers\KasController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PeriodeController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\RukemController;
+use App\Http\Controllers\UsersController;
 use App\Http\Controllers\WargaController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -20,6 +22,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('data_warga', function () {
         return Inertia::render('warga/index');
     })->name('profile');
+
+    // user
+    Route::resource('users',UsersController::class);
+    // role
+    Route::resource('role',RoleController::class);
+    
     Route::get('/warga', [WargaController::class, 'index'])->name('warga.index');
     Route::get('/warga/{warga}', [WargaController::class, 'show'])->name('warga.show');
     Route::post('/warga', [WargaController::class, 'store'])->name('warga.store');

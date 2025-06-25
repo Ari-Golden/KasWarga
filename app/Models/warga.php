@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Warga extends Model
 {
     use HasFactory;
+    protected $table = 'wargas';
 
     // Kolom yang boleh diisi massal
     protected $fillable = [

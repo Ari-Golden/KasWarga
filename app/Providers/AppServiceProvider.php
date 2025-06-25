@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,4 +26,14 @@ class AppServiceProvider extends ServiceProvider
         //     URL::forceScheme('https');
         // }
     }
+    
+
+public function share(\Illuminate\Http\Request $request): array
+{
+    return [
+        'auth' => [
+            'user' => $request->user(),
+        ],
+    ];
+}
 }
