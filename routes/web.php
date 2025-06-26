@@ -25,6 +25,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('profile')
       ->middleware('role:admin|koordinator|warga');
 
+    // Dashboar untuk warga
+    Route::get('/dashboardwarga', [DashboardController::class, 'indexDashboardWarga'])->name('dashboardwarga.index')->middleware('role:admin|koordinator|warga');
+    Route::get('/dashboardwarga/kas-warga', [DashboardController::class, 'indexKasWarga'])->name('dashboardwarga.kaswarga')->middleware('role:admin|koordinator|warga');
+    Route::get('/dashboardwarga/rukem-warga', [DashboardController::class, 'indexKasRukem'])->name('dashboardwarga.kasrukem')->middleware('role:admin|koordinator|warga');
+    
     // User management - hanya admin
     Route::resource('users', UsersController::class)->middleware('role:admin');
 
