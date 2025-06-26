@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { can } from '@/lib/can';
+import AppLayoutKoordinator from '@/layouts/AppLayoutKoordinator';
 
 const formSchema = z.object({
   id_warga: z.string().min(1, 'Pilih warga'),
@@ -37,9 +38,11 @@ const items = [
 export default function CreateIuran({
   wargas,
   jenisIuran,
+  auth,
 }: {
   wargas: { id: number; nama: string }[];
   jenisIuran: { id: number; nama_jenis_iuran: string }[];
+  auth: { user: any };
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -66,6 +69,7 @@ export default function CreateIuran({
   };
 
   return (
+    <AppLayoutKoordinator user={auth.user}>
     <div className="mx-auto mt-10 max-w-xl space-y-6 rounded-lg bg-white p-6 shadow">
       <h2 className="text-xl font-semibold">Tambah Iuran Warga</h2>
 
@@ -174,5 +178,6 @@ export default function CreateIuran({
         </form>
       </Form>
     </div>
+    </AppLayoutKoordinator>
   );
 }

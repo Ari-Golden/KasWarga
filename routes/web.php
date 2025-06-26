@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IuranWargaController;
 use App\Http\Controllers\JenisIuranController;
 use App\Http\Controllers\KasController;
+use App\Http\Controllers\KoordinatorController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PeriodeController;
 use App\Http\Controllers\RoleController;
@@ -16,16 +17,25 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
+Route::middleware(['auth', 'role:admin'])->get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::middleware(['auth', 'role:koordinator'])
+->get('/dashboardkoordinator', [KoordinatorController::class, 'index'])->name('dashboard.koordinator') ;
+
+
+Route::middleware(['auth', 'role:warga'])->get('/dashboardwarga',
+ [DashboardController::class, 'indexDashboardWarga'])->name('dashboardwarga.index')->name('dashboard.warga');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])
+    ->name('dashboard')
+    ->middleware('role:admin|koordinator');
 
     Route::get('data_warga', function () {
         return Inertia::render('warga/index');
     })->name('profile')
-      ->middleware('role:admin|koordinator|warga');
+      ->middleware('role:admin|koordinator');
 
-    // Dashboar untuk warga
+    // Dashboard untuk warga
     Route::get('/dashboardwarga', [DashboardController::class, 'indexDashboardWarga'])->name('dashboardwarga.index')->middleware('role:admin|koordinator|warga');
     Route::get('/dashboardwarga/kas-warga', [DashboardController::class, 'indexKasWarga'])->name('dashboardwarga.kaswarga')->middleware('role:admin|koordinator|warga');
     Route::get('/dashboardwarga/rukem-warga', [DashboardController::class, 'indexKasRukem'])->name('dashboardwarga.kasrukem')->middleware('role:admin|koordinator|warga');
@@ -33,7 +43,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboardwarga/profil-pribadi', [DashboardController::class, 'profilSaya'])->name('dashboardwarga.profilSaya')->middleware('role:admin|koordinator|warga');
     Route::patch('/dashboardwarga/update-profil-pribadi', [DashboardController::class, 'updateProfilSaya'])->name('dashboardwarga.updateProfilSaya')->middleware('role:admin|koordinator|warga');
     
-    
+    // Dashboard untuk Koordinator
+    Route::get('/dashboardkoordinator/kas-warga', [KoordinatorController::class, 'indexKasWarga'])->name('dashboardkoordinator.kaswarga')->middleware('role:admin|koordinator');
+    Route::get('/dashboardkoordinator/rukem-warga', [KoordinatorController::class, 'indexKasRukem'])->name('dashboardkoordinator.kasrukem')->middleware('role:admin|koordinator');
+    Route::get('/dashboardkoordinator/iuran-pribadi', [KoordinatorController::class, 'iuranPribadi'])->name('dashboardkoordinator.iuranpribadi')->middleware('role:admin|koordinator');
+    Route::get('/dashboardkoordinator/profil-pribadi', [KoordinatorController::class, 'profilSaya'])->name('dashboardkoordinator.profilSaya')->middleware('role:admin|koordinator');
+    Route::patch('/dashboardkoordinator/update-profil-pribadi', [KoordinatorController::class, 'updateProfilSaya'])->name('dashboardkoordinator.updateProfilSaya')->middleware('role:admin|koordinator');
+    Route::get('/dashboardkoordinator/list-iuran-warga', [KoordinatorController::class, 'listIuran'])->name('dashboardkoordinator.listIuran')->middleware('role:admin|koordinator');
+
     // User management - hanya admin
     Route::resource('users', UsersController::class)->middleware('role:admin');
 
