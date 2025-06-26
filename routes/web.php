@@ -29,6 +29,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboardwarga', [DashboardController::class, 'indexDashboardWarga'])->name('dashboardwarga.index')->middleware('role:admin|koordinator|warga');
     Route::get('/dashboardwarga/kas-warga', [DashboardController::class, 'indexKasWarga'])->name('dashboardwarga.kaswarga')->middleware('role:admin|koordinator|warga');
     Route::get('/dashboardwarga/rukem-warga', [DashboardController::class, 'indexKasRukem'])->name('dashboardwarga.kasrukem')->middleware('role:admin|koordinator|warga');
+    Route::get('/dashboardwarga/iuran-pribadi', [DashboardController::class, 'iuranPribadi'])->name('dashboardwarga.iuranpribadi')->middleware('role:admin|koordinator|warga');
+    Route::get('/dashboardwarga/profil-pribadi', [DashboardController::class, 'profilSaya'])->name('dashboardwarga.profilSaya')->middleware('role:admin|koordinator|warga');
+    Route::patch('/dashboardwarga/update-profil-pribadi', [DashboardController::class, 'updateProfilSaya'])->name('dashboardwarga.updateProfilSaya')->middleware('role:admin|koordinator|warga');
+    
     
     // User management - hanya admin
     Route::resource('users', UsersController::class)->middleware('role:admin');

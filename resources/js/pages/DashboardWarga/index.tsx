@@ -55,13 +55,7 @@ const DashboardWarga: React.FC<Props> = ({ auth, wargaCount, saldoKas, saldoRuke
               <span className="text-sm font-medium text-indigo-800">Kas Rukem</span>
               <span className="text-xl">🏠</span>
             </Link>
-            <Link
-              href="/iuran-report"
-              className="flex items-center justify-between rounded-lg bg-orange-50 p-3 transition hover:bg-orange-100"
-            >
-              <span className="text-sm font-medium text-orange-800">Laporan Iuran</span>
-              <span className="text-xl">📄</span>
-            </Link>
+           
           </div>
         </div>
 

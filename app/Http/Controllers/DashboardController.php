@@ -105,4 +105,60 @@ class DashboardController extends Controller
         ]
     ]);
 }
+ public function iuranPribadi(Request $request)
+{
+    $user = $request->user();
+
+    $warga = $user->warga;
+    if (!$warga) {
+        return abort(403, 'Akun ini belum terhubung ke data warga');
+    }
+
+    $iuran = $warga->iuranWargas()
+    ->with('jenisIuran')
+    ->when($request->dari, fn($q) => $q->whereDate('tgl_bayar', '>=', $request->dari))
+    ->when($request->sampai, fn($q) => $q->whereDate('tgl_bayar', '<=', $request->sampai))
+    ->orderByDesc('tgl_bayar')
+    ->get();
+
+
+    $total = $iuran->sum('jumlah');
+
+    return Inertia::render('DashboardWarga/IuranPribadi', [
+        'auth' => ['user' => $user],
+        'iuran' => $iuran,
+        'total' => $total,
+    ]);
+}
+
+public function profilSaya(Request $request)
+{
+    $user = $request->user();
+    $warga = $user->warga;
+
+    return Inertia::render('DashboardWarga/ProfilSaya', [
+        'auth' => ['user' => $user],
+        'warga' => $warga,
+    ]);
+}
+public function updateProfilSaya(Request $request)
+{
+    $request->validate([
+        'nama' => 'required|string',
+        'no_kk' => 'required|string',
+        'no_ktp' => 'required|string',
+        'alamat' => 'required|string',
+        'rt_rw' => 'required|string',
+        'no_hp' => 'nullable|string',
+    ]);
+
+    $warga = $request->user()->warga;
+
+    $warga->update($request->only(['nama', 'no_kk', 'no_ktp', 'alamat', 'rt_rw', 'no_hp']));
+
+    return redirect()->back()->with('success', 'Profil berhasil diperbarui');
+}
+
+
+
 }

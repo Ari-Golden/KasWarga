@@ -31,5 +31,15 @@ public function iuranWargas()
 {
     return $this->hasMany(IuranWarga::class, 'id_warga');
 }
+
+public function user()
+{
+    return $this->belongsTo(User::class,'user_id');
+}
+
+
+
+
+
 }
 
