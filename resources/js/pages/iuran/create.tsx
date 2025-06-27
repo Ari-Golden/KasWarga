@@ -171,7 +171,7 @@ export default function CreateIuran({
             type="button"
             variant="outline"
             className="w-full"
-            onClick={() => router.visit(route('iuran-warga.index'))}
+            onClick={() => router.visit(route('dashboard.koordinator'))}
           >
             Batal
           </Button>

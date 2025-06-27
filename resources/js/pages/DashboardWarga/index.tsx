@@ -1,6 +1,6 @@
 import React from 'react';
 import { Head, Link } from '@inertiajs/react';
-import { Home, Wallet, Users } from 'lucide-react'; // Ikon elegan
+import { Home, Wallet, Users, Settings } from 'lucide-react'; // Ikon elegan
 import AppLayoutWarga from '@/layouts/AppLayoutWarga';
 
 interface Props {
@@ -61,6 +61,13 @@ const DashboardWarga: React.FC<Props> = ({ auth, wargaCount, saldoKas = 0, saldo
                 <Home className="h-5 w-5 text-indigo-600" />
               </Link>
             </div>
+            <Link
+                href="/dashboardwarga/setting-profil-user"
+                className="flex items-center justify-between rounded-lg border border-indigo-100 bg-indigo-50 p-4 hover:bg-indigo-100 transition"
+              >
+                <span className="text-sm font-medium text-indigo-800">Setting Profile dan Password User</span>
+                <Settings className="h-5 w-5 text-indigo-600" />
+              </Link>
           </div>
 
         </div>

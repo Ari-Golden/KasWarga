@@ -1,6 +1,6 @@
 import AppLayoutKoordinator from '@/layouts/AppLayoutKoordinator';
 import { Head, Link } from '@inertiajs/react';
-import { Banknote, Home, ListChecks, Users } from 'lucide-react';
+import { Banknote, Home, ListChecks, Settings, Users } from 'lucide-react';
 import React, { useState } from 'react';
 
 interface Props {
@@ -10,13 +10,7 @@ interface Props {
     saldoRukem: number;
 }
 
-const DashboardKoordinator: React.FC<Props> = ({
-  auth,
-  wargaCount = 0,
-  saldoKas = 0,
-  saldoRukem = 0,
-}) => {
-
+const DashboardKoordinator: React.FC<Props> = ({ auth, wargaCount = 0, saldoKas = 0, saldoRukem = 0 }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
     return (
@@ -39,16 +33,18 @@ const DashboardKoordinator: React.FC<Props> = ({
                                 <Banknote className="h-5 w-5 text-green-600" />
                                 <p className="text-sm text-gray-600">Saldo Kas</p>
                             </div>
-                            <p className="mt-2 text-2xl font-bold text-green-700">Rp {typeof saldoKas === 'number' ? saldoKas.toLocaleString('id-ID') : '0'}
-</p>
+                            <p className="mt-2 text-2xl font-bold text-green-700">
+                                Rp {typeof saldoKas === 'number' ? saldoKas.toLocaleString('id-ID') : '0'}
+                            </p>
                         </div>
                         <div className="rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 p-4 shadow-sm">
                             <div className="flex items-center gap-3">
                                 <Home className="h-5 w-5 text-purple-600" />
                                 <p className="text-sm text-gray-600">Saldo Rukem</p>
                             </div>
-                            <p className="mt-2 text-2xl font-bold text-purple-700">Rp {typeof saldoRukem === 'number' ? saldoRukem.toLocaleString('id-ID') : '0'}
-</p>
+                            <p className="mt-2 text-2xl font-bold text-purple-700">
+                                Rp {typeof saldoRukem === 'number' ? saldoRukem.toLocaleString('id-ID') : '0'}
+                            </p>
                         </div>
                     </div>
                     {/* Menu Utama */}
@@ -75,6 +71,13 @@ const DashboardKoordinator: React.FC<Props> = ({
                             >
                                 <span className="text-sm font-medium text-teal-800">Data Iuran</span>
                                 <ListChecks className="h-5 w-5 text-teal-600" />
+                            </Link>
+                            <Link
+                                href="/dashboardkoordinator/setting-profil-user"
+                                className="flex items-center justify-between rounded-lg border border-indigo-100 bg-indigo-50 p-4 transition hover:bg-indigo-100"
+                            >
+                                <span className="text-sm font-medium text-indigo-800">Setting Profile dan Password User</span>
+                                <Settings className="h-5 w-5 text-indigo-600" />
                             </Link>
                         </div>
                     </div>

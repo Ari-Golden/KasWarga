@@ -42,7 +42,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboardwarga/iuran-pribadi', [DashboardController::class, 'iuranPribadi'])->name('dashboardwarga.iuranpribadi')->middleware('role:admin|koordinator|warga');
     Route::get('/dashboardwarga/profil-pribadi', [DashboardController::class, 'profilSaya'])->name('dashboardwarga.profilSaya')->middleware('role:admin|koordinator|warga');
     Route::patch('/dashboardwarga/update-profil-pribadi', [DashboardController::class, 'updateProfilSaya'])->name('dashboardwarga.updateProfilSaya')->middleware('role:admin|koordinator|warga');
-    
+    Route::get('/dashboardwarga/setting-profil-user', function () {
+        return Inertia::render('DashboardWarga/settings/profile');
+    })->name('dashboardwarga.settingProfilUser')->middleware('role:admin|koordinator|warga');
+    Route::get('/dashboardwarga/setting-password-user', function () {
+        return Inertia::render('DashboardWarga/settings/password');
+    })->name('dashboardwarga.settingPasswordUser')->middleware('role:admin|koordinator|warga');
     // Dashboard untuk Koordinator
     Route::get('/dashboardkoordinator/kas-warga', [KoordinatorController::class, 'indexKasWarga'])->name('dashboardkoordinator.kaswarga')->middleware('role:admin|koordinator');
     Route::get('/dashboardkoordinator/rukem-warga', [KoordinatorController::class, 'indexKasRukem'])->name('dashboardkoordinator.kasrukem')->middleware('role:admin|koordinator');
@@ -50,6 +55,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboardkoordinator/profil-pribadi', [KoordinatorController::class, 'profilSaya'])->name('dashboardkoordinator.profilSaya')->middleware('role:admin|koordinator');
     Route::patch('/dashboardkoordinator/update-profil-pribadi', [KoordinatorController::class, 'updateProfilSaya'])->name('dashboardkoordinator.updateProfilSaya')->middleware('role:admin|koordinator');
     Route::get('/dashboardkoordinator/list-iuran-warga', [KoordinatorController::class, 'listIuran'])->name('dashboardkoordinator.listIuran')->middleware('role:admin|koordinator');
+     Route::get('/dashboardkoordinator/setting-profil-user', function () {
+        return Inertia::render('DashboardKoordinator/settings/profile');
+    })->name('dashboardkoordinator.settingProfilUser')->middleware('role:admin|koordinator');
+    Route::get('/dashboardkoordinator/setting-password-user', function () {
+        return Inertia::render('DashboardLoordinator/settings/password');
+    })->name('dashboardwarga.settingPasswordUser')->middleware('role:admin|koordinator');
+
+
 
     // User management - hanya admin
     Route::resource('users', UsersController::class)->middleware('role:admin');

@@ -21,6 +21,9 @@ class ProfileController extends Controller
         return Inertia::render('settings/profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
+            'auth' => [
+                'user' => Auth::user(),
+            ],
         ]);
     }
 
@@ -37,7 +40,8 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return to_route('profile.edit');
+        // return to_route('profile.edit');
+        return redirect()->back();
     }
 
     /**
