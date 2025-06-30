@@ -80,21 +80,24 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
     uang_keluar: 0,
   });
 
-  const mappedData = React.useMemo<LaporanKas[]>(() =>
-    (kasWargas ?? []).map((item) => ({
-      id: item.id,
-      kode: item.kode_rukem,
-      tanggal_kas: item.tanggal_kas_rukem,
-      uraian_kas: item.uraian_kas_rukem,
-      periode_bulan: item.periode_bulan,
-      uang_masuk: Number(item.uang_masuk_rukem),
-      uang_keluar: Number(item.uang_keluar_rukem),
-      saldo: Number(item.saldo_rukem ?? 0),
-    })),
-    [kasWargas]
-  );
-
-  const data = mappedData;
+  const data = React.useMemo<LaporanKas[]>(() => {
+    let currentSaldo = 0;
+    return (kasWargas ?? []).map((item) => {
+      const uangMasuk = Number(item.uang_masuk_rukem);
+      const uangKeluar = Number(item.uang_keluar_rukem);
+      currentSaldo += uangMasuk - uangKeluar;
+      return {
+        id: item.id,
+        kode: item.kode_rukem,
+        tanggal_kas: item.tanggal_kas_rukem,
+        uraian_kas: item.uraian_kas_rukem,
+        periode_bulan: item.periode_bulan,
+        uang_masuk: uangMasuk,
+        uang_keluar: uangKeluar,
+        saldo: currentSaldo,
+      };
+    });
+  }, [kasWargas]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,7 +132,7 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
 
   const handleDelete = (id: number) => {
     if (confirm('Yakin ingin menghapus data ini?')) {
-      router.delete(route('kas.destroy', id));
+      router.delete(route('rukem.destroy', id));
     }
   };
 
@@ -218,17 +221,9 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  const sortedRowsWithSaldo = React.useMemo(() => {
-    let saldo = 0;
-    return table.getSortedRowModel().rows.map((row) => {
-      saldo += (row.original.uang_masuk || 0) - (row.original.uang_keluar || 0);
-      return { ...row.original, saldo };
-    });
-  }, [table.getSortedRowModel().rows]);
-
   const exportExcel = () => {
     const ws = XLSX.utils.json_to_sheet(
-      sortedRowsWithSaldo.map((r) => ({
+      data.map((r) => ({
         Tanggal: formatTanggalIndo(r.tanggal_kas),
         Uraian: r.uraian_kas,
         Pemasukan: r.uang_masuk,
@@ -243,14 +238,14 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
 
   const exportPDF = () => {
     const doc = new jsPDF();
-    const periode = sortedRowsWithSaldo[0]?.periode_bulan ?? 'Semua Periode';
+    const periode = data[0]?.periode_bulan ?? 'Semua Periode';
     doc.setFontSize(14);
     doc.text(`Laporan Kas Bulanan - ${periode}`, 14, 15);
 
     autoTable(doc, {
       startY: 20,
       head: [['Tanggal', 'Uraian', 'Pemasukan', 'Pengeluaran', 'Saldo']],
-      body: sortedRowsWithSaldo.map((row) => [
+      body: data.map((row) => [
         formatTanggalIndo(row.tanggal_kas),
         row.uraian_kas,
         row.uang_masuk > 0 ? formatRupiah(row.uang_masuk) : '-',
@@ -261,8 +256,6 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
 
     doc.save(`LaporanKas-${periode}.pdf`);
   };
-
- 
 
   return (
     <div className="container mx-auto px-2 md:px-6 py-6">
@@ -291,26 +284,26 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
             ))}
           </thead>
           <tbody>
-            {sortedRowsWithSaldo.map((row, index) => (
-              <tr key={index} className="border-t">
-                <td className="px-2 py-1 md:px-4 md:py-2 text-right">{row.id}</td>
-                <td className="px-2 py-1 md:px-4 md:py-2 text-right">{row.kode}</td>
-                <td className="px-4 py-2 md:px-4 md:py-2 text-center">{row.periode_bulan}</td>
-                <td className="px-4 py-2 md:px-4 md:py-2 text-right">{formatTanggalIndo(row.tanggal_kas)}</td>
-                <td className="px-4 py-2 md:px-4 md:py-2">{row.uraian_kas}</td>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id} className="border-t">
+                <td className="px-2 py-1 md:px-4 md:py-2 text-right">{row.original.id}</td>
+                <td className="px-2 py-1 md:px-4 md:py-2 text-right">{row.original.kode}</td>
+                <td className="px-4 py-2 md:px-4 md:py-2 text-center">{row.original.periode_bulan}</td>
+                <td className="px-4 py-2 md:px-4 md:py-2 text-right">{formatTanggalIndo(row.original.tanggal_kas)}</td>
+                <td className="px-4 py-2 md:px-4 md:py-2">{row.original.uraian_kas}</td>
                 <td className="px-4 py-2 md:px-4 md:py-2 text-right text-green-600">
-                  {row.uang_masuk > 0 ? formatRupiah(row.uang_masuk) : '-'}
+                  {row.original.uang_masuk > 0 ? formatRupiah(row.original.uang_masuk) : '-'}
                 </td>
                 <td className="px-4 py-2 md:px-4 md:py-2 text-right text-red-600">
-                  {row.uang_keluar > 0 ? formatRupiah(row.uang_keluar) : '-'}
+                  {row.original.uang_keluar > 0 ? formatRupiah(row.original.uang_keluar) : '-'}
                 </td>
                 <td className="px-4 py-2 md:px-4 md:py-2text-right font-bold text-blue-700">
-                  {formatRupiah(row.saldo ?? 0)}
+                  {formatRupiah(row.original.saldo ?? 0)}
                 </td>
                 <td className="px-4 py-2 md:px-4 md:py-2 text-center">
                   <div className="flex justify-center gap-2">
-                    {can('rukem.edit')&&<Button size="icon" variant="outline" onClick={() => handleEdit(row)}><Edit className="w-4 h-4" /></Button>}
-                    {can('rukem.delete')&&<Button size="icon" variant="destructive" onClick={() => handleDelete(row.id)}><Trash className="w-4 h-4" /></Button>}
+                    {can('rukem.edit')&&<Button size="icon" variant="outline" onClick={() => handleEdit(row.original)}><Edit className="w-4 h-4" /></Button>}
+                    {can('rukem.delete')&&<Button size="icon" variant="destructive" onClick={() => handleDelete(row.original.id)}><Trash className="w-4 h-4" /></Button>}
                   </div>
                 </td>
               </tr>

@@ -5,6 +5,8 @@ import { Link, router } from '@inertiajs/react';
 import { ColumnDef, flexRender, getCoreRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 import { FormEventHandler, useEffect, useMemo, useState } from 'react';
+import * as XLSX from 'xlsx';
+import { Download } from 'lucide-react';
 import { can } from '@/lib/can';
 
 type Role = {
@@ -189,6 +191,20 @@ export default function DataUsers({ users = [], roles = [] }: DataUsersProps) {
         state: {},
     });
 
+    const exportExcel = () => {
+        const ws = XLSX.utils.json_to_sheet(
+            filteredData.map((user) => ({
+                ID: user.id,
+                Nama: user.name,
+                Email: user.email,
+                Roles: user.roles.map((role) => role.name).join(', '),
+            }))
+        );
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Users');
+        XLSX.writeFile(wb, 'users.xlsx');
+    };
+
     return (
         <div className="p-4">
             <div className="mb-4 flex justify-between">
@@ -199,7 +215,10 @@ export default function DataUsers({ users = [], roles = [] }: DataUsersProps) {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <div>
+                <div className="flex gap-2">
+                    <Button onClick={exportExcel} className="bg-green-600 text-white hover:bg-green-700">
+                        <Download className="mr-2 h-4 w-4" /> Export Excel
+                    </Button>
                     {can('user.create')&&<Button onClick={() => openModal(null)} className="bg-indigo-600 text-white hover:bg-indigo-700">
                         + Tambah User
                     </Button>}

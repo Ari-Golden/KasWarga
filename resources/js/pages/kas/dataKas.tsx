@@ -65,7 +65,16 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
   });
   const [isEdit, setIsEdit] = React.useState(false);
 
-  const data = kasWargas ?? [];
+  const data = React.useMemo(() => {
+    let currentSaldo = 0;
+    return (kasWargas ?? []).map((kas) => {
+      currentSaldo += (kas.uang_masuk || 0) - (kas.uang_keluar || 0);
+      return {
+        ...kas,
+        saldo: currentSaldo,
+      };
+    });
+  }, [kasWargas]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -204,20 +213,9 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  const sortedRowsWithSaldo = React.useMemo(() => {
-    let saldo = 0;
-    return table.getSortedRowModel().rows.map((row) => {
-      saldo += (row.original.uang_masuk || 0) - (row.original.uang_keluar || 0);
-      return {
-        ...row.original,
-        saldo,
-      };
-    });
-  }, [table.getSortedRowModel().rows]);
-
   const exportExcel = () => {
     const ws = XLSX.utils.json_to_sheet(
-      sortedRowsWithSaldo.map((r) => ({
+      data.map((r) => ({
         Tanggal: formatTanggalIndo(r.tanggal_kas),
         Uraian: r.uraian_kas,
         Pemasukan: r.uang_masuk,
@@ -232,7 +230,7 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
 
   const exportPDF = () => {
     const doc = new jsPDF();
-    const periode = sortedRowsWithSaldo[0]?.periode_bulan ?? 'Semua Periode';
+    const periode = data[0]?.periode_bulan ?? 'Semua Periode';
 
     doc.setFontSize(14);
     doc.text(`Laporan Kas Bulanan - ${periode}`, 14, 15);
@@ -240,7 +238,7 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
     autoTable(doc, {
       startY: 20,
       head: [['Tanggal', 'Uraian', 'Pemasukan', 'Pengeluaran', 'Saldo']],
-      body: sortedRowsWithSaldo.map((row) => [
+      body: data.map((row) => [
         formatTanggalIndo(row.tanggal_kas),
         row.uraian_kas,
         row.uang_masuk > 0 ? formatRupiah(row.uang_masuk) : '-',
@@ -279,26 +277,26 @@ export default function LaporanKasTable({ kasWargas }: LaporanKasTableProps) {
             ))}
           </thead>
           <tbody>
-            {sortedRowsWithSaldo.map((row, index) => (
-              <tr key={index} className="border-t">
-                <td className="px-2 py-1 md:px-4 md:py-2 text-right">{row.id}</td>
-                <td className="px-2 py-1 md:px-4 md:py-2 text-right">{row.kode}</td>
-                <td className="px-4 py-2 md:px-4 md:py-2 text-center">{row.periode_bulan}</td>
-                <td className="px-4 py-2 md:px-4 md:py-2">{formatTanggalIndo(row.tanggal_kas)}</td>
-                <td className="px-4 py-2 md:px-4 md:py-2">{row.uraian_kas}</td>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id} className="border-t">
+                <td className="px-2 py-1 md:px-4 md:py-2 text-right">{row.original.id}</td>
+                <td className="px-2 py-1 md:px-4 md:py-2 text-right">{row.original.kode}</td>
+                <td className="px-4 py-2 md:px-4 md:py-2 text-center">{row.original.periode_bulan}</td>
+                <td className="px-4 py-2 md:px-4 md:py-2">{formatTanggalIndo(row.original.tanggal_kas)}</td>
+                <td className="px-4 py-2 md:px-4 md:py-2">{row.original.uraian_kas}</td>
                 <td className="px-4 py-2 md:px-4 md:py-2 text-right text-green-600">
-                  {row.uang_masuk > 0 ? formatRupiah(row.uang_masuk) : '-'}
+                  {row.original.uang_masuk > 0 ? formatRupiah(row.original.uang_masuk) : '-'}
                 </td>
                 <td className="px-4 py-2 md:px-4 md:py-2 text-right text-red-600">
-                  {row.uang_keluar > 0 ? formatRupiah(row.uang_keluar) : '-'}
+                  {row.original.uang_keluar > 0 ? formatRupiah(row.original.uang_keluar) : '-'}
                 </td>
                 <td className="px-4 py-2 md:px-4 md:py-2text-right font-bold text-blue-700">
-                  {formatRupiah(row.saldo ?? 0)}
+                  {formatRupiah(row.original.saldo ?? 0)}
                 </td>
                 <td className="px-4 py-2 md:px-4 md:py-2 text-center">
                   <div className="flex justify-center gap-2">
-                    <Button size="icon" variant="outline" onClick={() => handleEdit(row)}><Edit className="w-4 h-4" /></Button>
-                    <Button size="icon" variant="destructive" onClick={() => handleDelete(row.id)}><Trash className="w-4 h-4" /></Button>
+                    <Button size="icon" variant="outline" onClick={() => handleEdit(row.original)}><Edit className="w-4 h-4" /></Button>
+                    <Button size="icon" variant="destructive" onClick={() => handleDelete(row.original.id)}><Trash className="w-4 h-4" /></Button>
                   </div>
                 </td>
               </tr>

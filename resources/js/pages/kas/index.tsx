@@ -1,8 +1,9 @@
 import { AppSidebar } from '@/components/app-sidebar';
 import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import LaporanKasTable from './dataKas';
+import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,9 +23,20 @@ interface IndexProps {
 }
 
 export default function Index(_: IndexProps) {
+    const { flash } = usePage().props as { flash: { success?: string; error?: string } };
+
     // default array kosong
 
     const [selectedPeriode, setSelectedPeriode] = useState<string | undefined>(undefined);
+
+    useEffect(() => {
+        if (flash.success) {
+            alert(flash.success);
+        }
+        if (flash.error) {
+            alert(flash.error);
+        }
+    }, [flash]);
 
     return (
         <SidebarProvider
@@ -41,6 +53,18 @@ export default function Index(_: IndexProps) {
                 <SiteHeader />
                 <div className="flex min-h-screen min-w-0 flex-1 flex-col">
                     <div className="@container/main flex flex-1 flex-col gap-2">
+                        {flash.success && (
+                            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                                <strong className="font-bold">Success!</strong>
+                                <span className="block sm:inline">{flash.success}</span>
+                            </div>
+                        )}
+                        {flash.error && (
+                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                                <strong className="font-bold">Error!</strong>
+                                <span className="block sm:inline">{flash.error}</span>
+                            </div>
+                        )}
                         <div className="mr-6 ml-6 flex flex-col gap-4 py-4 md:gap-4 md:py-4">
                             <h2 className="text-xl font-semibold">Pembuatan Laporan Kas</h2>
                             <p className="text-muted-foreground">Daftar Laporan kas warga.</p>

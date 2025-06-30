@@ -29,13 +29,13 @@ type Warga = {
 };
 
 interface DataWargaProps {
-    wargas: Warga[];
+    wargas: Warga[] | null;
 }
 
-export default function DataWarga({ wargas }: DataWargaProps) {
-    
+export default function DataWarga({ wargas: initialWargas }: DataWargaProps) {
+    const [wargas, setWargas] = useState<Warga[]>(Array.isArray(initialWargas) ? initialWargas : []);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filteredData, setFilteredData] = useState<Warga[]>(wargas || []);
+    const [filteredData, setFilteredData] = useState<Warga[]>(wargas);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [currentWarga, setCurrentWarga] = useState<Warga | null>(null);
@@ -57,11 +57,11 @@ export default function DataWarga({ wargas }: DataWargaProps) {
             setFilteredData(
                 wargas.filter(
                     (w) =>
-                        w.nama.toLowerCase().includes(lower) ||
-                        w.no_ktp.toLowerCase().includes(lower) ||
-                        w.alamat.toLowerCase().includes(lower) ||
-                        w.no_hp.toLowerCase().includes(lower) ||
-                        w.status.toLowerCase().includes(lower),
+                        (w.nama && w.nama.toLowerCase().includes(lower)) ||
+                        (w.no_ktp && w.no_ktp.toLowerCase().includes(lower)) ||
+                        (w.alamat && w.alamat.toLowerCase().includes(lower)) ||
+                        (w.no_hp && w.no_hp.toLowerCase().includes(lower)) ||
+                        (w.status && w.status.toLowerCase().includes(lower)),
                 ),
             );
         }

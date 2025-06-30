@@ -22,8 +22,7 @@ Route::middleware(['auth', 'role:koordinator'])
 ->get('/dashboardkoordinator', [KoordinatorController::class, 'index'])->name('dashboard.koordinator') ;
 
 
-Route::middleware(['auth', 'role:warga'])->get('/dashboardwarga',
- [DashboardController::class, 'indexDashboardWarga'])->name('dashboardwarga.index')->name('dashboard.warga');
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])
@@ -59,8 +58,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('DashboardKoordinator/settings/profile');
     })->name('dashboardkoordinator.settingProfilUser')->middleware('role:admin|koordinator');
     Route::get('/dashboardkoordinator/setting-password-user', function () {
-        return Inertia::render('DashboardLoordinator/settings/password');
-    })->name('dashboardwarga.settingPasswordUser')->middleware('role:admin|koordinator');
+        return Inertia::render('DashboardKoordinator/settings/password');
+    })->name('dashboardkoordinator.settingPasswordUser')->middleware('role:admin|koordinator');
 
 
 

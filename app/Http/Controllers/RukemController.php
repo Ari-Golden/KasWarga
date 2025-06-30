@@ -246,6 +246,12 @@ class RukemController extends Controller
      */
     public function destroy(Rukem $rukem)
     {
-        //
+        try {
+            $rukem->delete();
+            return redirect()->route('rukem.index')->with('success', 'Data kas rukem berhasil dihapus.');
+        } catch (\Exception $e) {
+            Log::error('Gagal menghapus data kas rukem: ' . $e->getMessage());
+            return redirect()->route('rukem.index')->with('error', 'Terjadi kesalahan saat menghapus data kas rukem.');
+        }
     }
 }

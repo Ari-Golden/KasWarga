@@ -23,7 +23,7 @@ interface IndexProps {
 }
 
 export default function Index({ users, roles }: IndexProps) {
-    console.log(roles);
+ 
     return (
         <SidebarProvider
             style={
