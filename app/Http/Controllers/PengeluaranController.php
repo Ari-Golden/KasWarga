@@ -105,6 +105,8 @@ class PengeluaranController extends Controller
      */
     public function destroy(Pengeluaran $pengeluaran)
     {
-        //
+        $pengeluaran->delete();
+
+        return redirect()->route('pengeluaran.index')->with('success', 'Data pengeluaran berhasil dihapus.');
     }
 }

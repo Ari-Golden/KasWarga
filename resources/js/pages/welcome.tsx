@@ -19,6 +19,18 @@ export default function Welcome() {
                     <h1 className="text-4xl font-bold text-gray-800 dark:text-white mb-4">
                         Selamat Datang di <span className="text-blue-600 dark:text-blue-400">Kas Warga</span>
                     </h1>
+                                                            <motion.p
+                        animate={{ opacity: [0.7, 1, 0.7] }}
+                        transition={{
+                            duration: 2.5,
+                            repeat: Infinity,
+                            repeatType: 'loop',
+                            ease: 'easeInOut',
+                        }}
+                        className="text-gray-600 dark:text-gray-400 text-xl font-semibold -mt-2 mb-4"
+                    >
+                        RT 003 RW 011 Kelurahan Lubang Buaya Kecamatan Cipayung Jakarta Timur
+                    </motion.p>
                     <p className="text-gray-600 dark:text-gray-300 text-lg mb-6">
                         Aplikasi modern untuk mencatat iuran dan pengeluaran warga RT. Transparan, cepat, dan mudah.
                     </p>
@@ -52,8 +64,18 @@ export default function Welcome() {
 
                 <motion.div
                     initial={{ opacity: 0, x: 50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.8 }}
+                    animate={{
+                        opacity: 1,
+                        x: 0,
+                        rotate: [0, 1, -1, 0], // Sedikit rotasi ke kiri dan kanan
+                        y: [0, 0.5, -0.5, 0], // Sedikit pergerakan vertikal halus
+                    }}
+                    transition={{
+                        duration: 2.5,
+                        repeat: Infinity,
+                        repeatType: "mirror",
+                        ease: "easeInOut",
+                    }}
                     className="w-full lg:w-1/2 flex justify-center"
                 >
                     <img

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\IuranWarga;
-use App\Models\warga;
+use App\Models\Warga;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -11,7 +11,7 @@ class WargaController extends Controller
 {
     public function index(Request $request)
     {
-        $warga = warga::all();
+        $warga = Warga::all();
         return Inertia::render('warga/index', compact('warga'));
     }
 

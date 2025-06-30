@@ -127,7 +127,7 @@ export default function ListIuran({ iurans, wargas, jenisIuran }: ListIuranProps
 
     const handleDelete = () => {
         if (!currentIuran) return;
-        router.delete(route('iuran.destroy', currentIuran.id), {
+        router.delete(route('iuran-warga.destroy', currentIuran.id), {
             onSuccess: () => setIsDeleteConfirmOpen(false),
         });
     };
