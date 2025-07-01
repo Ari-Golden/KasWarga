@@ -48,6 +48,7 @@ class DashboardController extends Controller
             'pengeluaranTotal' => Pengeluaran::sum('jumlah'),
             'iuranTotal' => IuranWarga::sum('jumlah'),
             'saldoKas' => KasWarga::sum('uang_masuk') - KasWarga::sum('uang_keluar'),
+            'saldoRukem' => Rukem::sum('uang_masuk_rukem') - Rukem::sum('uang_keluar_rukem'),
             'kas' => KasWarga::all(),
             'iuran' => $iuran,
             'jenisIuran' => JenisIuran::select('id', 'nama_jenis_iuran')->get(),
@@ -58,7 +59,7 @@ class DashboardController extends Controller
 {
     $selectedPeriode = $request->get('periode_id');
 
-    $kas = KasWarga::with('periode_bulan')
+    $kas = KasWarga::select('id', 'uraian_kas as keterangan', 'tanggal_kas as tanggal', 'uang_masuk', 'uang_keluar')
         ->when($selectedPeriode, function ($query, $selectedPeriode) {
             $query->where('periode_id', $selectedPeriode);
         })
@@ -84,7 +85,7 @@ class DashboardController extends Controller
 {
     $selectedPeriode = $request->get('periode_id');
 
-    $kas = Rukem::with('periode_bulan')
+    $kas = Rukem::select('id', 'uraian_kas_rukem as keterangan', 'tanggal_kas_rukem', 'uang_masuk_rukem', 'uang_keluar_rukem')
         ->when($selectedPeriode, function ($query, $selectedPeriode) {
             $query->where('periode_id', $selectedPeriode);
         })
