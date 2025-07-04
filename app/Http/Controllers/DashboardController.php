@@ -22,6 +22,12 @@ class DashboardController extends Controller
     {
         Warga::all();
         $iuran = IuranWarga::with('warga', 'jenisIuran')->latest()->get();
+        $iuranKasWarga = IuranWarga::whereHas('jenisIuran', function ($query) {
+            $query->where('nama_jenis_iuran', 'Kas Warga');
+        })->sum('jumlah');
+        $iuranRukem = IuranWarga::whereHas('jenisIuran', function ($query) {
+            $query->where('nama_jenis_iuran', 'Rukem');
+        })->sum('jumlah');
         return Inertia::render('dashboard',[
             'title' => 'Dashboard',
             'description' => 'Welcome to your dashboard!', 
@@ -29,7 +35,10 @@ class DashboardController extends Controller
             'wargaCount' => Warga::count(),
             'pengeluaranTotal' => Pengeluaran::sum('jumlah'),
             'iuranTotal' => IuranWarga::sum('jumlah'),
+            'iuranKasWarga' => $iuranKasWarga,
+            'iuranRukem' => $iuranRukem,
             'saldoKas' => KasWarga::sum('uang_masuk') - KasWarga::sum('uang_keluar'),
+            'saldoRukem' => Rukem::sum('uang_masuk_rukem') - Rukem::sum('uang_keluar_rukem'),
             'kas' => KasWarga::all(),
             'iuran' => $iuran,
             'jenisIuran' => JenisIuran::select('id', 'nama_jenis_iuran')->get(),
