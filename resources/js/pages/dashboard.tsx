@@ -50,6 +50,7 @@ interface PageProps {
   iuranTotal?: number;
   iuranKasWarga?: number;
   iuranRukem?: number;
+  danaTaktis?: number;
   pengeluaranTotal?: number;
   saldoKas?: number;
   saldoRukem?: number;
@@ -63,6 +64,8 @@ export default function Page({
   saldoRukem = 0,
   iuranKasWarga = 0,
   iuranRukem = 0,
+  iuranTotal = 0,
+  danaTaktis = 0,
   kas = [],
   warga = [],
   iuran = [],
@@ -91,6 +94,8 @@ export default function Page({
                   totalRukem={saldoRukem}
                   iuranKasWarga={iuranKasWarga}
                   iuranRukem={iuranRukem}
+                  iuranTotal={iuranTotal}
+                  danaTaktis={danaTaktis}
                 />
                 <div className="px-4 lg:px-6">
                   <ChartAreaInteractive kas={kas} />

@@ -21,12 +21,15 @@ class DashboardController extends Controller
     public function index()
     {
         Warga::all();
-        $iuran = IuranWarga::with('warga', 'jenisIuran')->latest()->get();
+        $iuran = IuranWarga::with('warga', 'jenisIuran')->latest()->get();        
         $iuranKasWarga = IuranWarga::whereHas('jenisIuran', function ($query) {
-            $query->where('nama_jenis_iuran', 'Kas');
+            $query->where('nama_jenis_iuran', 'KAS');
         })->sum('jumlah');
         $iuranRukem = IuranWarga::whereHas('jenisIuran', function ($query) {
             $query->where('nama_jenis_iuran', 'Rukem');
+        })->sum('jumlah');
+        $iuranDanaTaktis = IuranWarga::whereHas('jenisIuran', function ($query) {
+            $query->where('nama_jenis_iuran', 'DANA TAKTIS');
         })->sum('jumlah');
         return Inertia::render('dashboard',[
             'title' => 'Dashboard',
@@ -37,6 +40,7 @@ class DashboardController extends Controller
             'iuranTotal' => IuranWarga::sum('jumlah'),
             'iuranKasWarga' => $iuranKasWarga,
             'iuranRukem' => $iuranRukem,
+            'danaTaktis' => $iuranDanaTaktis,
             'saldoKas' => KasWarga::sum('uang_masuk') - KasWarga::sum('uang_keluar'),
             'saldoRukem' => Rukem::sum('uang_masuk_rukem') - Rukem::sum('uang_keluar_rukem'),
             'kas' => KasWarga::all(),
