@@ -1,5 +1,10 @@
 import * as React from "react";
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar"
+import {
   IconCamera,
   IconChartBar,
   IconDashboard,
@@ -137,8 +142,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="#">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Kas Warga.</span>
+                {/* <IconInnerShadowTop className="!size-5" /> */}
+                <Avatar className="h-8 w-8 rounded-lg grayscale">
+                <AvatarImage src="/kaswarga.svg" />
+                <AvatarFallback className="rounded-lg">KW</AvatarFallback>
+              </Avatar>
+                <span className="text-base font-semibold">Kas Warga APP</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

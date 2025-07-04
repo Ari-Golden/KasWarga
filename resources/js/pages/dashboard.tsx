@@ -94,8 +94,8 @@ export default function Page({
                   totalRukem={saldoRukem}
                   iuranKasWarga={iuranKasWarga}
                   iuranRukem={iuranRukem}
-                  iuranTotal={iuranTotal}
                   danaTaktis={danaTaktis}
+                  iuranTotal={iuranTotal}
                 />
                 <div className="px-4 lg:px-6">
                   <ChartAreaInteractive kas={kas} />
