@@ -23,7 +23,7 @@ class DashboardController extends Controller
         Warga::all();
         $iuran = IuranWarga::with('warga', 'jenisIuran')->latest()->get();
         $iuranKasWarga = IuranWarga::whereHas('jenisIuran', function ($query) {
-            $query->where('nama_jenis_iuran', 'Kas Warga');
+            $query->where('nama_jenis_iuran', 'Kas');
         })->sum('jumlah');
         $iuranRukem = IuranWarga::whereHas('jenisIuran', function ($query) {
             $query->where('nama_jenis_iuran', 'Rukem');
